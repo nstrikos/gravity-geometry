@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>content/AndroidDelegate.qml</file>
+        <file>content/conics.qml</file>
+        <file>content/conicsInfo.qml</file>
+        <file>gravity.js</file>
+        <file>images/navigation_next_item.png</file>
+        <file>images/navigation_previous_item.png</file>
+        <file>images/toolbar.png</file>
+        <file alias="three.js">three.js</file>
+        <file>content/ControlEventSource.qml</file>
+    </qresource>
+</RCC>

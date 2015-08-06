@@ -11,7 +11,32 @@ Rectangle {
         clip: true
 
         Text {
+            id:text0
+            color: "#000000"
+            width: parent.width
+            text : "The conic sections play a fundamental role in space science.
+Any body under the influence of an inverse square law force
+(i.e., where force is inversely proportional to the square of distance)
+must have a trajectory that is one of the conic sections.
+In celestial mechanics the forces are gravitational;
+however, it is also of interest that the forces of attraction or repulsion
+between electrically charged particles obey an inverse square law,
+and such particles also have paths that are conic sections.
+No important scientific applications were found for conic sections until the 17th century,
+when Kepler discovered that planets move in ellipses
+and Galileo proved that projectiles travel in parabolas."
+            font.pointSize: 14
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignJustify
+            textFormat: Text.RichText
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        }
+
+
+        Text {
             id: text1
+            anchors.top: text0.bottom
+            anchors.topMargin: 20
             color: "#000000"
             width: parent.width
             text: "In mathematics, a conic section is a curve obtained as the intersection of a cone with a plane.

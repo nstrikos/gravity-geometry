@@ -1,19 +1,57 @@
 import QtQuick 2.0
+import QtQuick.Controls 1.3
+
 
 Rectangle {
+    id: mainRectangle
     width: 100
     height: 62
 
     Flickable {
+        id: flickable
         anchors.fill: parent
         contentHeight: contentItem.childrenRect.height
         flickableDirection: Flickable.VerticalFlick
         clip: true
+        Button {
+            id :increaseButton
+            anchors.top : parent.top
+            text: "Increase font size"
+            width: parent.width / 2
+            onClicked: {
+                text0.font.pointSize +=1;
+                text1.font.pointSize +=1;
+                text2.font.pointSize +=1;
+                text3.font.pointSize +=1;
+                text4.font.pointSize +=1;
+                text5.font.pointSize +=1;
+            }
+        }
+        Button {
+            id :decreaseButton
+            anchors.top : parent.top
+            text: "Decrease font size"
+            width: parent.width / 2
+            anchors.right: parent.right
+            onClicked: {
+                text0.font.pointSize -=1;
+                text1.font.pointSize -=1;
+                text2.font.pointSize -=1;
+                text3.font.pointSize -=1;
+                text4.font.pointSize -=1;
+                text5.font.pointSize -=1;
+            }
+        }
 
         Text {
             id:text0
             color: "#000000"
             width: parent.width
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.top : increaseButton.bottom
             text : "The conic sections play a fundamental role in space science.
 Any body under the influence of an inverse square law force
 (i.e., where force is inversely proportional to the square of distance)
@@ -37,6 +75,10 @@ and Galileo proved that projectiles travel in parabolas."
             id: text1
             anchors.top: text0.bottom
             anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
             color: "#000000"
             width: parent.width
             text: "In mathematics, a conic section is a curve obtained as the intersection of a cone with a plane.
@@ -53,6 +95,10 @@ The circle is a special case of the ellipse, and is of sufficient interest in it
             id: text2
             anchors.top: text1.bottom
             anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
             color: "#000000"
             width: parent.width
             text: "Features"
@@ -63,6 +109,10 @@ The circle is a special case of the ellipse, and is of sufficient interest in it
             id:text3
             anchors.top: text2.bottom
             anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
             width: parent.width
             color: "#000000"
             text: "Conics are of three types: parabolas, ellipses, including circles, and hyperbolas.
@@ -84,6 +134,10 @@ In the remaining case, the figure is a hyperbola."
             id: text4
             anchors.top: text3.bottom
             anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
             color: "#000000"
             width: parent.width
             text: "History"
@@ -94,6 +148,10 @@ In the remaining case, the figure is a hyperbola."
             id: text5
             anchors.top: text4.bottom
             anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
             color: "#000000"
             width: parent.width
             text: "The conic sections were named and studied at least since 200 BC, when Apollonius of Perga undertook a systematic study of their properties.
@@ -123,6 +181,12 @@ of conics to problems in algebra."
             horizontalAlignment: Text.AlignJustify
             textFormat: Text.RichText
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-        }
+        }        
+    }
+    Component.onCompleted: {
+        //We set here the flickable content height property
+        //because of a binding property issue
+        increaseButton.height = 40;
+        decreaseButton.height = 40;
     }
 }

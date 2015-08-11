@@ -47,7 +47,7 @@ Rectangle {
                 Slider {
                     id: thetaSlider
                     anchors.top: xLabel.bottom
-                    value: 0
+                    value: 45
                     activeFocusOnPress: true
                     stepSize: 1
                     maximumValue: 180
@@ -71,7 +71,7 @@ Rectangle {
                 }
                 Slider {
                     id: phiSlider
-                    value: 0
+                    value: 45
                     activeFocusOnPress: true
                     stepSize: 1
                     minimumValue: -90

@@ -3,7 +3,6 @@ import QtCanvas3D 1.0
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 
-import "gravity.js" as GLCode
 import "content"
 
 ApplicationWindow {
@@ -77,6 +76,22 @@ ApplicationWindow {
             ListElement {
                 title: "Conic sections in 3D"
                 page: "content/conics.qml"
+            }
+            ListElement {
+                title: "Two body problem"
+                page: "content/twobody.qml"
+            }
+            ListElement {
+                title: "Static solar system"
+                page: "content/solarsystem.qml"
+            }
+            ListElement {
+                title: "Slow solar system"
+                page: "content/slowsolarsystem.qml"
+            }
+            ListElement {
+                title: "Real solar system"
+                page: "content/realsolarsystem.qml"
             }
     }
 

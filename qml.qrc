@@ -10,5 +10,21 @@
         <file>images/toolbar.png</file>
         <file alias="three.js">three.js</file>
         <file>content/ControlEventSource.qml</file>
+        <file>content/twobody.qml</file>
+        <file>twobody.js</file>
+        <file>orbit.js</file>
+        <file>images/texture_sun.jpg</file>
+        <file>images/earthmap1k.jpg</file>
+        <file>images/sunmap.jpg</file>
+        <file>images/galaxy_starfield.png</file>
+        <file>content/solarsystem.qml</file>
+        <file>solarsystem.js</file>
+        <file>slowsolarsystem.js</file>
+        <file>content/slowsolarsystem.qml</file>
+        <file>images/earthbump1k.jpg</file>
+        <file>images/earthcloudmapcolortrans.png</file>
+        <file>images/earthspec1k.jpg</file>
+        <file>realsolarsystem.js</file>
+        <file>content/realsolarsystem.qml</file>
     </qresource>
 </RCC>

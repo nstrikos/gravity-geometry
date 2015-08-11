@@ -22,14 +22,14 @@ var draggingSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal d
 
 
 function initializeGL(canvas, eventSource) {
-    theta = 90;
-    phi=0;
+    theta = theta0 = Math.PI / 4;
+    phi = phi0 = Math.PI / 4;
     distance = 400;
     camera_x = distance*Math.sin(theta);
     camera_z = distance*Math.cos(theta);
     camera_y = 0;
     dragging = false;
-    start_x = start_y = end_x = end_y = theta0 = phi0 = 0;
+    start_x = start_y = end_x = end_y = 0;
     showParabola = false;
     showCircle = false;
     showPlane = true;
@@ -42,8 +42,8 @@ function initializeGL(canvas, eventSource) {
     // Grid
 
     var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
-        geometry = new THREE.Geometry(),
-        floor = -75, step = 25;
+            geometry = new THREE.Geometry(),
+            floor = -75, step = 25;
 
     for ( var i = 0; i <= 40; i ++ ) {
 
@@ -59,20 +59,59 @@ function initializeGL(canvas, eventSource) {
     scene.add( line );
 
 
-    var material = new THREE.MeshBasicMaterial( { color: 0x000099, transparent: true, blending: THREE.AdditiveBlending });
+    //var material = new THREE.MeshBasicMaterial( { color: 0x000099, transparent: true, blending: THREE.AdditiveBlending });
+    var material = new THREE.MeshPhongMaterial({color: 0x7777ff});
     cone = new THREE.Mesh(new THREE.CylinderGeometry(0, 50, 100, 50, 50, false), material);
     scene.add(cone);
 
+    var pointColor = "#ccffcc";
+    var pointLight = new THREE.PointLight(pointColor);
+    pointLight.distance = 400;
+    //scene.add(pointLight);
+    pointLight.position.set(50, 250, 50);
+    pointLight.intensity = 1.0;
+
+    // add subtle ambient lighting
+    var ambiColor = "#1c1c1c";
+    var ambientLight = new THREE.AmbientLight(ambiColor);
+    //scene.add(ambientLight);
+
+    var spotColor = "#ffffff";
+    var spotLight = new THREE.SpotLight(spotColor);
+    spotLight.position.set(40, 260, 10);
+    spotLight.castShadow = true;
+    spotLight.target = cone;
+    scene.add(spotLight);
+
+    var spotLight2 = new THREE.SpotLight(spotColor);
+    spotLight2.position.set(40, -260, 10);
+    spotLight2.castShadow = true;
+    spotLight2.target = cone;
+    scene.add(spotLight2);
+
+    var spotLight3 = new THREE.SpotLight(spotColor);
+    spotLight3.position.set(0, 0, 240);
+    spotLight3.castShadow = true;
+    spotLight3.target = cone;
+    scene.add(spotLight3);
+
+    var spotLight4 = new THREE.SpotLight(spotColor);
+    spotLight4.position.set(0, 0, -240);
+    spotLight4.castShadow = true;
+    spotLight4.target = cone;
+    scene.add(spotLight4);
 
     var planeGeometry = new THREE.PlaneBufferGeometry(150,150,8,1);
-    var planeMaterial = new THREE.MeshBasicMaterial( { color: 0xff9900, transparent: true, blending: THREE.AdditiveBlending });
+    //var planeMaterial = new THREE.MeshBasicMaterial( { color: 0xff9900, transparent: true, blending: THREE.AdditiveBlending });
+    var planeMaterial = new THREE.MeshPhongMaterial({color: 0xff9900});
     plane = new THREE.Mesh(planeGeometry,planeMaterial);
     plane.material.side = THREE.DoubleSide;
     plane.rotation.x=-0.5*Math.PI;
     scene.add(plane);
 
     var parabolaGeometry = new THREE.PlaneBufferGeometry(150,150,8,1);
-    var parabolaMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, transparent: true, blending: THREE.AdditiveBlending });
+    //var parabolaMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, transparent: true, blending: THREE.AdditiveBlending });
+    var parabolaMaterial = new THREE.MeshPhongMaterial({color: 0x00ff00});
     parabolaPlane = new THREE.Mesh(parabolaGeometry,parabolaMaterial);
     parabolaPlane.material.side = THREE.DoubleSide;
     coneAngle = Math.atan2(100,50) - Math.PI / 2;
@@ -80,21 +119,24 @@ function initializeGL(canvas, eventSource) {
     scene.add(parabolaPlane);
 
     var circleGeometry = new THREE.PlaneBufferGeometry(150,150,8,1);
-    var circleMaterial = new THREE.MeshBasicMaterial( { color: 0xff8888, transparent: true, blending: THREE.AdditiveBlending });
+    //var circleMaterial = new THREE.MeshBasicMaterial( { color: 0xff8888, transparent: true, blending: THREE.AdditiveBlending });
+    var circleMaterial = new THREE.MeshPhongMaterial({color: 0xff8888});
     circlePlane = new THREE.Mesh(circleGeometry,circleMaterial);
     circlePlane.material.side = THREE.DoubleSide;
     circlePlane.rotation.x=-0.5*Math.PI;
     scene.add(circlePlane);
 
     var ellipsisGeometry = new THREE.PlaneBufferGeometry(150,150,8,1);
-    var ellipsisMaterial = new THREE.MeshBasicMaterial( { color: 0x2288ff, transparent: true, blending: THREE.AdditiveBlending });
+    //var ellipsisMaterial = new THREE.MeshBasicMaterial( { color: 0x2288ff, transparent: true, blending: THREE.AdditiveBlending });
+    var ellipsisMaterial = new THREE.MeshPhongMaterial({color: 0x2288ff});
     ellipsisPlane = new THREE.Mesh(ellipsisGeometry,ellipsisMaterial);
     ellipsisPlane.material.side = THREE.DoubleSide;
     ellipsisPlane.rotation.x=-0.4*Math.PI;
     scene.add(ellipsisPlane);
 
     var hyperbolaGeometry = new THREE.PlaneBufferGeometry(150,150,8,1);
-    var hyperbolaMaterial = new THREE.MeshBasicMaterial( { color: 0xff2222, transparent: true, blending: THREE.AdditiveBlending });
+    //var hyperbolaMaterial = new THREE.MeshBasicMaterial( { color: 0xff2222, transparent: true, blending: THREE.AdditiveBlending });
+    var hyperbolaMaterial = new THREE.MeshPhongMaterial({color: 0xff2222});
     hyperbolaPlane = new THREE.Mesh(hyperbolaGeometry,hyperbolaMaterial);
     hyperbolaPlane.material.side = THREE.DoubleSide;
     hyperbolaPlane.rotation.x=-0.05*Math.PI;
@@ -250,8 +292,8 @@ function toggleShowHyperbola() {
 
 function resetView()
 {
-    theta0 = 0;
-    phi0 = 0;
+    theta0 = Math.PI / 4;
+    phi0 = Math.PI / 4;
     distance = 400;
     showPlane = true;
     showCircle = false;

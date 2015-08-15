@@ -26,5 +26,6 @@
         <file>images/earthspec1k.jpg</file>
         <file>realsolarsystem.js</file>
         <file>content/realsolarsystem.qml</file>
+        <file>fonts/LiberationSans-Regular.ttf</file>
     </qresource>
 </RCC>

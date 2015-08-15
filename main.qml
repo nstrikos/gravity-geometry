@@ -7,6 +7,9 @@ import "content"
 
 ApplicationWindow {
     id: mainview
+    FontLoader { id: myCustomFont; source: "qrc:/fonts/LiberationSans-Regular.ttf" }
+
+
     title: qsTr("Gravity and geometry")
     width: 1280
     height: 768

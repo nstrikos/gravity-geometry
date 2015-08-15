@@ -13,6 +13,7 @@ Rectangle {
     opacity: 1
     visible: true
 
+
 //    property bool dragging
     property int userInfoWidth
     property bool autoRotate : true

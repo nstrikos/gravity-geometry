@@ -20,31 +20,23 @@ DisableDirPage=yes
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\gpl-3.0.txt
-OutputDir=C:\Users\Nikos\Desktop\Gravity-Geometry\build
-SetupIconFile=C:\Emily-build-directory\resources\emily.ico
+OutputDir=C:\Users\Nikos\Desktop\Gravity-Geometry\output-build
+SetupIconFile=C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\icon.ico
 OutputBaseFilename=gravity-geometry
 Compression=lzma
 SolidCompression=yes
-;PrivilegesRequired=admin
 
-[Languages]
-Name: "greek"; MessagesFile: "compiler:Languages\Greek.isl"
 
 [Files]
-Source: "C:\Gravity-Geometry-build-directory\gravity-geometry.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Gravity-Geometry-build-directory\Gravity-Geometry.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Gravity-Geometry-build-directory\launch.vbs"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Gravity-Geometry-build-directory\qml\*"; DestDir: "{app}\qml\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\inno-setup\build\gravity-geometry.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\inno-setup\build\Gravity-Geometry.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\inno-setup\build\launch.vbs"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\inno-setup\build\qml\*"; DestDir: "{app}\qml\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\Nikos\Desktop\Gravity-Geometry\src\gravity-geometry\icon.ico"; DestDir: "{app}\resources"; Flags: ignoreversion
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-;Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "C:\Gravity-Geometry-build-directory\emily.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}";  WorkingDir: "{app}"; IconFilename: "{app}\resources\icon.ico"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-;Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 
-;[Run]
-;Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-;[Registry]
-;Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: {#MyAppName}; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue

@@ -108,11 +108,21 @@ Rectangle {
                     anchors.top: distanceLabel.bottom
                     onValueChanged: GLCode.setDistance(distanceSlider.value)
                 }
-
+                Button {
+                    id: restartButton
+                    text: "Restart"
+                    anchors.top: distanceSlider.bottom
+                    anchors.topMargin: 20
+                    width:parent.width
+                    onClicked:
+                    {
+                        GLCode.restart();
+                    }
+                }
                 Button {
                     id: autoRotateButton
                     text: "Auto rotate on"
-                    anchors.top: distanceSlider.bottom
+                    anchors.top: restartButton.bottom
                     anchors.topMargin: 20
                     width:parent.width
                     onClicked:

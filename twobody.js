@@ -514,3 +514,8 @@ function setVelFactor(value)
 {
     velFactor = value;
 }
+
+function restart()
+{
+    frame = 0;
+}

@@ -3,7 +3,7 @@
 mkdir -p /usr/bin
 
 cp ./gravity-geometry /usr/bin/gravity-geometry
-cp ./Gravity-Geometry-exec /usr/bin/Gravity-Geometry-exec
+cp ./Gravity-Geometry /usr/bin/Gravity-Geometry
 cp ./gravity-geometry-uninstall.sh /usr/bin/gravity-geometry-uninstall.sh
 
 

@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Name=Gravity-Geometry
+Comment=Gravity & Geometry
+Exec=/usr/bin/gravity-geometry
+Icon=gravity-geometry.png
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Categories=Science;

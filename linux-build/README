@@ -1,0 +1,9 @@
+Installation : 
+
+sudo ./install.sh 
+
+Uninstallation :
+
+sudo /usr/bin/gravity-geometry-uninstall.sh
+
+

@@ -1,0 +1,5 @@
+#!/bin/sh
+ export QT_QPA_FONTDIR=/usr/share/gravity-geometry/fonts
+ export QML_IMPORT_PATH=/usr/share/gravity-geometry/qml
+ export QML2_IMPORT_PATH=/usr/share/gravity-geometry/qml
+ /usr/bin/Gravity-Geometry-exec

@@ -20,5 +20,8 @@ parabola example
 ellipse example
 eclipses
 
+var sphereGeometry = new THREE.SphereGeometry(maxDistance / 30, 20, 20); //Difference in two files
+
+
 Bugs: to do
 -----------------

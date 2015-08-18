@@ -2,8 +2,6 @@ TEMPLATE = app
 
 QT += qml quick widgets
 
-CONFIG += static
-
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc

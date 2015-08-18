@@ -339,7 +339,7 @@ function addSpheres()
     var sphereGeometry = new THREE.SphereGeometry(30000000 / scaleFactor, 30, 30);
     var sphereGeometry2 = new THREE.SphereGeometry(18000000 / scaleFactor, 30, 20);
 
-    var texture = THREE.ImageUtils.loadTexture("../images/sunmap.jpg");
+    var texture = THREE.ImageUtils.loadTexture("qrc:/images/sunmap.jpg");
     var material = new THREE.MeshBasicMaterial({
                                                    map: texture,
                                                    bumpMap: texture,
@@ -352,17 +352,7 @@ function addSpheres()
     var mat2 = new THREE.MeshPhongMaterial();
     mat2.map = texture2;
     sphere2 = new THREE.Mesh(sphereGeometry2, mat2);
-    //scene.add(sphere2);
 
-//    var material2 = new THREE.MeshPhongMaterial({
-//                                                    map: THREE.ImageUtils.loadTexture("../images/earthmap1k.jpg"),
-//                                                    bumpMap: THREE.ImageUtils.loadTexture("../images/earthbump1k.jpg"),
-//                                                    bumpScale: 0.1
-//                                                });
-//    material2.specularMap = THREE.ImageUtils.loadTexture("../images/earthspec1k.jpg");
-//    material2.specular = new THREE.Color('grey');
-//    material2.shininess = 15.0;
-//    sphere2 = new THREE.Mesh(sphereGeometry2, material2);
     var cloudMaterial = new THREE.MeshPhongMaterial({
                                                         map: THREE.ImageUtils.loadTexture("../images/earthcloudmapcolortrans.png"),
                                                         side: THREE.DoubleSide,

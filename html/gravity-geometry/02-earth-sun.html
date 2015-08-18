@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Gravity - TwoBody problem in 3 Dimensions</title>
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
+    <script type="text/javascript" src="../libs/OrbitControls.js"></script>
+    <script type="text/javascript" src="../mylibs/orbit.js"></script>
+    <style>
+        body{
+            /* set margin to 0 and overflow to hidden, to go fullscreen */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="Stats-output">
+</div>
+
+<!-- Div which will hold the Output -->
+<div id="WebGL-output">
+</div>
+
+<!-- Javascript code that runs our Three.js examples -->
+<script type="text/javascript">
+
+    var camera;
+    var scene;
+    var renderer;
+
+
+    var frame = 0;
+    var geometry = new THREE.Geometry();
+    var geometry2 = new THREE.Geometry();
+    var velocityGeometry = new THREE.Geometry();
+    var velocityGeometry2 = new THREE.Geometry();
+    var colors = [];
+    var material = new THREE.LineBasicMaterial({
+                    opacity: 1.0,
+                    linewidth: 2,
+                    vertexColors: THREE.VertexColors });
+    var line = new THREE.Line(geometry, material);
+    var line2 = new THREE.Line(geometry2, material);
+    var velocity = new THREE.Line(velocityGeometry, material);
+    var velocity2 = new THREE.Line(velocityGeometry2, material);
+
+    var velocityColors = [];
+    velocityColors[0] = new THREE.Color(0xffff00);
+    velocityColors[1] = new THREE.Color(0xffff00);
+
+    var gui = new dat.GUI();
+
+    //Initial values
+    var RunSimulation = true;
+    var AutoRotate = true;
+    var CameraFollowsSphere1 = true;
+    var m2RelativeToM1 = false;
+
+
+    var m1 = 5.9726e+24;
+    var m2 = 1.988e+30;
+    var x = 0;
+    var xstop = 5 * 31558118.4 //Earth period
+    var h = 100000;
+    var G = 6.67384e-20;
+    var Mass1PositionX = 149.6e+6;
+    var Mass1PositionY = 0;
+    var Mass1PositionZ = 0;
+    var Mass2PositionX = 0;
+    var Mass2PositionY = 0;
+    var Mass2PositionZ = 0;
+    var Mass1VelocityX = 5;
+    var Mass1VelocityY = 5;
+    var Mass1VelocityZ = 5 + 29.78;
+    var Mass2VelocityX = 5;
+    var Mass2VelocityY = 5;
+    var Mass2VelocityZ = 5;
+
+    var ncolumns = 12;
+    var nrows = Math.ceil ((xstop-x)/h);
+    var positionVelocityArray = new Array(nrows);
+    for ( i = 0; i < nrows; i++)
+    {
+        positionVelocityArray[i] = new Array(ncolumns);
+    }
+
+    var y = new Array();
+    y[0] = Mass1PositionX;
+    y[1] = Mass1PositionY;
+    y[2] = Mass1PositionZ;
+    y[3] = Mass2PositionX;
+    y[4] = Mass2PositionY;
+    y[5] = Mass2PositionZ;
+    y[6] = Mass1VelocityX;
+    y[7] = Mass1VelocityY;
+    y[8] = Mass1VelocityZ;
+    y[9] = Mass2VelocityX;
+    y[10] = Mass2VelocityY;
+    y[11] = Mass2VelocityZ;
+
+
+    var distance1 = Math.sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+    var distance2 = Math.sqrt(y[3]*y[3] + y[4]*y[4] + y[5]*y[5]);
+    var maxDistance;
+    if (distance1 > distance2)
+        maxDistance = distance1;
+    else
+        maxDistance = distance2;
+    console.log(maxDistance);
+
+
+    //calculate array with positions and velocities
+    rk4(x, xstop, h, y, m1, m2, G, positionVelocityArray, nrows);
+
+    function evaluate()
+    {
+        frame = 0;
+
+        //free memory
+        scene.remove(line);
+        delete line;
+        line = null;
+        scene.remove(velocity);
+        delete velocity;
+        velocity = null;
+        scene.remove(velocity2);
+        delete velocity2;
+        velocity2 = null;
+
+        //line2 free memory????
+
+
+        positionVelocityArray = [];
+        delete positionVelocityArray;
+        positionVelocityArray = null;
+
+        y[0] = Mass1PositionX;
+        y[1] = Mass1PositionY;
+        y[2] = Mass1PositionZ;
+        y[3] = Mass2PositionX;
+        y[4] = Mass2PositionY;
+        y[5] = Mass2PositionZ;
+        y[6] = Mass1VelocityX;
+        y[7] = Mass1VelocityY;
+        y[8] = Mass1VelocityZ;
+        y[9] = Mass2VelocityX;
+        y[10] = Mass2VelocityY;
+        y[11] = Mass2VelocityZ;
+        nrows = Math.ceil ((xstop-x)/h);
+        ncolumns = 12;
+        positionVelocityArray = new Array(nrows);
+        for ( i = 0; i < nrows; i++)
+        {
+            positionVelocityArray[i] = new Array(ncolumns);
+        }
+
+        distance1 = Math.sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+        distance2 = Math.sqrt(y[3]*y[3] + y[4]*y[4] + y[5]*y[5]);
+        if (distance1 > distance2)
+            maxDistance = distance1;
+        else
+            maxDistance = distance2;
+
+        //This is duplicate code
+        camera.position.x = maxDistance ;
+        camera.position.y = maxDistance ;
+        camera.position.z = maxDistance ;
+        camera.lookAt(scene.position);
+        rk4(x, xstop, h, y, m1, m2, G, positionVelocityArray, nrows);
+    }
+
+
+    function init() {
+
+        var stats = initStats();
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1000, 1000000000);
+		camera.target = new THREE.Vector3(0, 0, 0);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(new THREE.Color(0x000000, 1.0));
+        renderer.shadowMapEnabled = true;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+     	document.body.appendChild(renderer.domElement);
+
+        var axes = new THREE.AxisHelper(1000);
+        scene.add(axes);
+
+        var sphereGeometry = new THREE.SphereGeometry(10000000, 20, 20);
+        var sphere1Material = new THREE.MeshPhongMaterial({color: 0xff7777});
+        var sphere2Material = new THREE.MeshPhongMaterial({color: 0x7777ff});
+        var sphere1 = new THREE.Mesh(sphereGeometry, sphere1Material);
+        sphere1.name = "sphere1";
+        scene.add(sphere1);
+        var sphere2 = new THREE.Mesh(sphereGeometry, sphere2Material);
+        sphere2.name = "sphere2";
+        scene.add(sphere2);
+
+
+        //This is duplicate code
+        camera.position.x = maxDistance ;
+        camera.position.y = maxDistance ;
+        camera.position.z = maxDistance ;
+        camera.lookAt(scene.position);
+
+        var light1 = new THREE.SpotLight( 0x888888 );
+        scene.add(light1);
+        var light2 = new THREE.SpotLight( 0x888888 );
+        scene.add(light2);
+
+        var orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitControls.autoRotate = AutoRotate;
+        var clock = new THREE.Clock();
+        document.getElementById("WebGL-output").appendChild(renderer.domElement);
+
+        var controls = new function() {
+            this.Mass1 = m1;
+            this.Mass2 = m2;
+            this.FinalTime = xstop;
+            this.TimeStep = h;
+            this.Mass1PositionX = Mass1PositionX;
+            this.Mass1PositionY = Mass1PositionY;
+            this.Mass1PositionZ = Mass1PositionZ;
+            this.Mass2PositionX = Mass2PositionX;
+            this.Mass2PositionY = Mass2PositionY;
+            this.Mass2PositionZ = Mass2PositionZ;
+            this.Mass1VelocityX = Mass1VelocityX;
+            this.Mass1VelocityY = Mass1VelocityY;
+            this.Mass1VelocityZ = Mass1VelocityZ;
+            this.Mass2VelocityX = Mass2VelocityX;
+            this.Mass2VelocityY = Mass2VelocityY;
+            this.Mass2VelocityZ = Mass2VelocityZ;
+            this.CameraFollowsSphere1 = CameraFollowsSphere1;
+            this.RunSimulation = RunSimulation;
+            this.AutoRotate = AutoRotate;
+            this.m2RelativeToM1 = m2RelativeToM1;
+            this.Restart = function() {
+                evaluate();
+                frame = 0;
+            }
+        }
+
+        gui.add(controls, 'Mass1').onChange(function (e) {
+            m1 = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2').onChange(function (e) {
+            m2 = e;
+            evaluate();
+        });
+        gui.add(controls, 'FinalTime').onChange(function (e) {
+            xstop = e;
+            evaluate();
+        });
+        gui.add(controls, 'TimeStep').onChange(function (e) {
+            h = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass1PositionX').onChange(function (e) {
+            Mass1PositionX = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass1PositionY').onChange(function (e) {
+            Mass1PositionY = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass1PositionZ').onChange(function (e) {
+            Mass1PositionZ = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2PositionX').onChange(function (e) {
+            Mass2PositionX = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2PositionY').onChange(function (e) {
+            Mass2PositionY = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2PositionZ').onChange(function (e) {
+            Mass2PositionZ = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass1VelocityX').onChange(function (e) {
+            Mass1VelocityX = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass1VelocityY').onChange(function (e) {
+            Mass1VelocityY = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass1VelocityZ').onChange(function (e) {
+            Mass1VelocityZ = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2VelocityX').onChange(function (e) {
+            Mass2VelocityX = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2VelocityY').onChange(function (e) {
+            Mass2VelocityY = e;
+            evaluate();
+        });
+        gui.add(controls, 'Mass2VelocityZ').onChange(function (e) {
+            Mass2VelocityZ = e;
+            evaluate();
+        });
+        gui.add(controls, 'CameraFollowsSphere1').onChange(function (e) {
+            CameraFollowsSphere1 = e;
+        });
+        gui.add(controls, 'AutoRotate').onChange(function (e) {
+            AutoRotate = e;
+            orbitControls.autoRotate = AutoRotate;
+        });
+        gui.add(controls, 'm2RelativeToM1').onChange(function (e) {
+            m2RelativeToM1 = e;
+
+        });
+        gui.add(controls, 'RunSimulation').onChange(function (e) {
+            RunSimulation = e;
+        });
+
+        gui.add(controls, 'Restart');
+
+        render();
+
+        function render()
+        {
+            stats.update();
+            if (frame < positionVelocityArray.length - 1 ) {
+                if (RunSimulation == true)
+                    frame++;
+            }
+                //free memory
+                scene.remove(line);
+                delete line;
+                line = null;
+                scene.remove(line2);
+                delete line2;
+                line2 = null;
+                scene.remove(velocity);
+                delete velocity;
+                velocity = null;
+                scene.remove(velocity2);
+                delete velocity2;
+                velocity2 = null;
+
+                geometry.vertices = [];
+                delete geometry;
+                geometry = null;
+                geometry = new THREE.Geometry();
+
+                geometry2.vertices = [];
+                delete geometry2;
+                geometry2 = null;
+                geometry2 = new THREE.Geometry();
+
+                velocityGeometry.vertices = [];
+                delete velocityGeometry;
+                velocityGeometry = null;
+                velocityGeometry = new THREE.Geometry();
+
+                velocityGeometry2.vertices = [];
+                delete velocityGeometry2;
+                velocityGeometry2 = null;
+                velocityGeometry2 = new THREE.Geometry();
+
+                //colors free???
+                colors = [];
+                colors2 = [];
+
+                if (m2RelativeToM1) {
+                    var sphere1X = 0;
+                    var sphere1Y = 0;
+                    var sphere1Z = 0;
+                    var sphere2X = positionVelocityArray[frame][3] - positionVelocityArray[frame][0];
+                    var sphere2Y = positionVelocityArray[frame][4] - positionVelocityArray[frame][1];
+                    var sphere2Z = positionVelocityArray[frame][5] - positionVelocityArray[frame][2];
+                    var sphere1VelX = 0;
+                    var sphere1VelY = 0;
+                    var sphere1VelZ = 0;
+                    var sphere2VelX = positionVelocityArray[frame][9] - positionVelocityArray[frame][6];
+                    var sphere2VelY = positionVelocityArray[frame][10] - positionVelocityArray[frame][7];
+                    var sphere2VelZ = positionVelocityArray[frame][11] - positionVelocityArray[frame][8];
+                }
+                else {
+                    var sphere1X = positionVelocityArray[frame][0];
+                    var sphere1Y = positionVelocityArray[frame][1];
+                    var sphere1Z = positionVelocityArray[frame][2];
+                    var sphere2X = positionVelocityArray[frame][3];
+                    var sphere2Y = positionVelocityArray[frame][4];
+                    var sphere2Z = positionVelocityArray[frame][5];
+                    var sphere1VelX = positionVelocityArray[frame][6];
+                    var sphere1VelY = positionVelocityArray[frame][7];
+                    var sphere1VelZ = positionVelocityArray[frame][8];
+                    var sphere2VelX = positionVelocityArray[frame][9];
+                    var sphere2VelY = positionVelocityArray[frame][10];
+                    var sphere2VelZ = positionVelocityArray[frame][11];
+                }
+
+                var lightX = (sphere1X + sphere2X) / 2;
+                var lightY = (sphere1Y + sphere2Y) / 2;
+                var lightZ = (sphere1Z + sphere2Z) / 2;
+
+                var lightX = camera.position.x;
+                var lightY = camera.position.y;
+                var lightZ = camera.position.z;
+
+
+                for (i=0; i < frame; i++)
+                {
+                    if (m2RelativeToM1) {
+                        geometry.vertices.push(new THREE.Vector3( 0, 0, 0));
+                        geometry2.vertices.push(new THREE.Vector3(positionVelocityArray[i][3] - positionVelocityArray[i][0], positionVelocityArray[i][4] - positionVelocityArray[i][1], positionVelocityArray[i][5] - positionVelocityArray[i][2]));
+                    }
+                    else {
+                        geometry.vertices.push(new THREE.Vector3( positionVelocityArray[i][0] , positionVelocityArray[i][1],  positionVelocityArray[i][2]));
+                        geometry2.vertices.push(new THREE.Vector3( positionVelocityArray[i][3] , positionVelocityArray[i][4] ,  positionVelocityArray[i][5]));
+                    }
+                    colors[i] = new THREE.Color(0xffffff);
+                    colors[i].setRGB( i*i/(frame*frame) - 0.3*i/frame + 0.3, 0.27, 0.27);
+                    colors2[i] = new THREE.Color(0xffffff);
+                    colors2[i].setRGB( 0.27, 0.27, 0.4*i*i/(frame*frame) + 0.6 );
+                }
+                geometry.colors = colors;
+                line = new THREE.Line(geometry, material);
+                geometry2.colors = colors2;
+                line2 = new THREE.Line(geometry2, material);
+                scene.add(line);
+                scene.add(line2);
+
+                velocityGeometry.vertices.push(new THREE.Vector3(sphere1X , sphere1Y, sphere1Z));
+                velocityGeometry.vertices.push(new THREE.Vector3(sphere1X + sphere1VelX * 1000000 , sphere1Y + sphere1VelY * 1000000, sphere1Z + sphere1VelZ * 1000000));
+                velocityGeometry.colors = velocityColors;
+                velocity = new THREE.Line(velocityGeometry, material);
+                scene.add(velocity);
+
+                velocityGeometry2.vertices.push(new THREE.Vector3(sphere2X , sphere2Y, sphere2Z));
+                velocityGeometry2.vertices.push(new THREE.Vector3(sphere2X + sphere2VelX * 1000000 , sphere2Y + sphere2VelY * 1000000, sphere2Z + sphere2VelZ * 1000000));
+                velocityGeometry2.colors = velocityColors;
+                velocity2 = new THREE.Line(velocityGeometry2, material);
+                scene.add(velocity2);
+
+
+                light1.position.set(lightX, lightY, lightZ);
+                light1.target = sphere1;
+                light2.position.set(lightX, lightY, lightZ);
+                light2.target = sphere2;
+
+                scene.traverse(function(e) {
+                    if (e.name == "sphere1" ) {
+                        e.position.x = sphere1X;
+                        e.position.y = sphere1Y;
+                        e.position.z = sphere1Z;
+                    }
+                    if (e.name == "sphere2" ) {
+                        e.position.x = sphere2X;
+                        e.position.y = sphere2Y;
+                        e.position.z = sphere2Z;
+                    }
+                });
+
+            var delta = clock.getDelta();
+            orbitControls.update(delta);
+
+            if (CameraFollowsSphere1)
+                camera.lookAt( new THREE.Vector3( sphere1.position.x, sphere1.position.y, sphere1.position.z));
+            else
+                camera.lookAt(scene.position);
+
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+        }
+
+        function initStats() {
+
+            var stats = new Stats();
+
+            stats.setMode(0); // 0: fps, 1: ms
+
+            // Align top-left
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+
+            document.getElementById("Stats-output").appendChild( stats.domElement );
+
+            return stats;
+        }
+    };
+
+
+    function onResize()
+    {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+
+    // listen to the resize events
+    window.addEventListener('resize', onResize, false);
+
+</script>
+</body>
+</html>

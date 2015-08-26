@@ -8,6 +8,15 @@ apk to f-droid
 
 Source: to do 
 -----------------
+
+browser code
+............
+change reference plane
+check distance at start
+hide orbits
+
+
+kepler laws
 hyberbola gravity info
 add newton gravity law info and runge kutta
 add earth data sheet
@@ -19,9 +28,6 @@ hyperbola example
 parabola example
 ellipse example
 eclipses
-
-var sphereGeometry = new THREE.SphereGeometry(maxDistance / 30, 20, 20); //Difference in two files
-
 
 Bugs: to do
 -----------------

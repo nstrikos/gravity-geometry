@@ -263,10 +263,10 @@ function initVariables()
     Mass2PositionX = 149.6e+6 / scaleFactor;
     Mass2PositionY = 0;
     Mass2PositionZ = 0;
-    Mass1VelocityX = -10;
+    Mass1VelocityX = 0;
     Mass1VelocityY = 0;
     Mass1VelocityZ = 0;
-    Mass2VelocityX = -10;
+    Mass2VelocityX = 0;
     Mass2VelocityY = 0;
     Mass2VelocityZ = -29.78;
 

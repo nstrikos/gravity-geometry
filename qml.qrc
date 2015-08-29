@@ -26,5 +26,8 @@
         <file>realsolarsystem.js</file>
         <file>content/realsolarsystem.qml</file>
         <file>fonts/LiberationSans-Regular.ttf</file>
+        <file>curved-space.js</file>
+        <file>content/curved-space.qml</file>
+        <file>images/square.png</file>
     </qresource>
 </RCC>

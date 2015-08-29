@@ -4,11 +4,11 @@
 
 <head>
     <title>Gravity -  Static solar system</title>
-    <script type="text/javascript" src="../libs/three.js"></script>
-    <script type="text/javascript" src="../libs/stats.js"></script>
-    <script type="text/javascript" src="../libs/dat.gui.js"></script>
-    <script type="text/javascript" src="../libs/OrbitControls.js"></script>
-    <script type="text/javascript" src="../mylibs/orbit.js"></script>
+    <script type="text/javascript" src="./libs/three.js"></script>
+    <script type="text/javascript" src="./libs/stats.js"></script>
+    <script type="text/javascript" src="./libs/dat.gui.js"></script>
+    <script type="text/javascript" src="./libs/OrbitControls.js"></script>
+    <script type="text/javascript" src="./mylibs/orbit.js"></script>
     <style>
         body{
             /* set margin to 0 and overflow to hidden, to go fullscreen */
@@ -38,12 +38,9 @@
 
     var frame;
     var geometry, geometry2;
-    var velocityGeometry, velocityGeometry2;
     var colors, colors2;
     var material;
     var line, line2;
-    var velocity, velocity2;
-    var velocityColors;
 
     var gui;
 
@@ -71,29 +68,20 @@
         frame = 0;
         geometry = new THREE.Geometry();
         geometry2 = new THREE.Geometry();
-        velocityGeometry = new THREE.Geometry();
-        velocityGeometry2 = new THREE.Geometry();
         colors = [];
-        colors2 = [];
         material = new THREE.LineBasicMaterial({
                     opacity: 1.0,
                     linewidth: 2,
                     vertexColors: THREE.VertexColors });
         line = new THREE.Line(geometry, material);
         line2 = new THREE.Line(geometry2, material);
-        velocity = new THREE.Line(velocityGeometry, material);
-        velocity2 = new THREE.Line(velocityGeometry2, material);
 
-        velocityColors = [];
-        velocityColors[0] = new THREE.Color(0xffff00);
-        velocityColors[1] = new THREE.Color(0xffff00);
 
         gui = new dat.GUI();
 
         RunSimulation = true;
         AutoRotate = true;
         CameraFollowsearth = false;
-        velocities = false;
 
 
         scaleFactor = 1000000;
@@ -285,27 +273,49 @@
 
     function addSpheres() {
 
-        var geom = new THREE.SphereGeometry(30000000 / scaleFactor, 30, 30);
-        var texture = THREE.ImageUtils.loadTexture("data:image/jpeg;base64,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");
-        //var texture = THREE.ImageUtils.loadTexture( sessionStorage.getItem('../images/sunmap.jpg') );
-        var mat = new THREE.MeshPhongMaterial();
-        mat.map = texture;
-        sun = new THREE.Mesh(geom, mat);
-
-        var earthGeometry = new THREE.SphereGeometry(18000000 / scaleFactor, 30, 30);
-
-        //var texture = THREE.ImageUtils.loadTexture("../images/sunmap.jpg");
-        //var material = new THREE.MeshPhongMaterial();
-        //material.map = texture;
-        //sun = new THREE.Mesh(sphereGeometry, material);
+        var sphereGeometry = new THREE.SphereGeometry(30000000 / scaleFactor, 30, 30);
+        var sphereGeometry2 = new THREE.SphereGeometry(18000000 / scaleFactor, 30, 20);
+        var texture = THREE.ImageUtils.loadTexture("./images/sunmap.jpg");
+        var material = new THREE.MeshBasicMaterial({
+                                                   map: texture,
+                                                   bumpMap: texture,
+                                                   bumpScale: 0.05
+                                               });
+        sun = new THREE.Mesh(sphereGeometry, material);
         scene.add(sun);
 
-        //var earthTexture = THREE.ImageUtils.loadTexture("https://cdn-careers.sstatic.net/careers/gethired/img/companypageadfallback-leaderboard-2.png?v=59b591051ad7");
-        //var earthMaterial = new THREE.MeshPhongMaterial();
-        //earthMaterial.map = earthTexture;
-        //earth = new THREE.Mesh(earthGeometry, earthMaterial);
-        //earth.name = "earth";
-        //scene.add(earth);
+        var material = new THREE.MeshPhongMaterial({
+                                                   map: THREE.ImageUtils.loadTexture("./images/earthmap1k.jpg"),
+                                                   bumpMap: THREE.ImageUtils.loadTexture("./images/earthbump1k.jpg"),
+                                                   bumpScale: 0.5
+                                               });
+
+        material.specularMap = THREE.ImageUtils.loadTexture("./images/earthspec1k.jpg");
+        material.specular = new THREE.Color('grey');
+        material.shininess = 10.0;
+        earth = new THREE.Mesh(sphereGeometry2, material);
+        earth.name = "earth";
+
+        var cloudMaterial = new THREE.MeshPhongMaterial({
+                                                        map: THREE.ImageUtils.loadTexture("./images/earthcloudmapcolortrans.png"),
+                                                        side: THREE.DoubleSide,
+                                                        transparent: true,
+                                                        opacity: 0.8
+                                                    });
+        var cloud = new THREE.Mesh(sphereGeometry2, cloudMaterial);
+        earth.add(cloud);
+        scene.add(earth);
+
+        var geometry3	= new THREE.SphereGeometry(500, 30, 30)
+        var texture3 = THREE.ImageUtils.loadTexture("./images/galaxy_starfield.png");
+        var material3 = new THREE.MeshBasicMaterial({
+                                                    map: texture3,
+                                                    //bumpMap: texture3,
+                                                    //bumpScale: 0.05,
+                                                    side	: THREE.BackSide
+                                                });
+        galaxySphere = new THREE.Mesh(geometry3, material3);
+        scene.add(galaxySphere);
     }
 
     function addLights() {
@@ -325,7 +335,7 @@
         spotLight2 = new THREE.SpotLight(spotColor);
         spotLight2.position.set(0, 0, 0);
         spotLight2.castShadow = true;
-        //spotLight2.target = earth;
+        spotLight2.target = earth;
         scene.add(spotLight2);
         console.log("SpotLight 2 added");
     }
@@ -339,7 +349,7 @@
         camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 50000 );
     	camera.target = new THREE.Vector3(0, 0, 0);
 
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer( { preserveDrawingBuffer: true } );
         renderer.setClearColor(new THREE.Color(0x000000, 1.0));
         renderer.shadowMapEnabled = true;
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -365,21 +375,24 @@
             this.CameraFollowsearth = CameraFollowsearth;
             this.RunSimulation = RunSimulation;
             this.AutoRotate = AutoRotate;
-            this.velocities = velocities;
             this.ReferencePlane = ReferencePlane;
             this.Restart = function() {
                 xstop = this.FinalTime; //This is necessary because xstop value may have been changed while checking
                 evaluate();
                 frame = 0;
             }
+            this.Screenshot = function() {
+                {
+                    window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
+                }
+            }
         }
-
-        gui.add(controls, 'velocities').onChange(function (e) {velocities = e;});
         gui.add(controls, 'ReferencePlane').onChange(function (e) {ReferencePlane = e;});
         gui.add(controls, 'CameraFollowsearth').onChange(function (e) {CameraFollowsearth = e;});
         gui.add(controls, 'AutoRotate').onChange(function (e) {AutoRotate = e;  orbitControls.autoRotate = AutoRotate; });
         gui.add(controls, 'RunSimulation').onChange(function (e) { RunSimulation = e; });
         gui.add(controls, 'Restart');
+        gui.add(controls, 'Screenshot');
         render();
 
         function render()
@@ -407,12 +420,6 @@
                 scene.remove(line2);
                 delete line2;
                 line2 = null;
-                scene.remove(velocity);
-                delete velocity;
-                velocity = null;
-                scene.remove(velocity2);
-                delete velocity2;
-                velocity2 = null;
 
                 geometry.vertices = [];
                 delete geometry;
@@ -423,16 +430,6 @@
                 delete geometry2;
                 geometry2 = null;
                 geometry2 = new THREE.Geometry();
-
-                velocityGeometry.vertices = [];
-                delete velocityGeometry;
-                velocityGeometry = null;
-                velocityGeometry = new THREE.Geometry();
-
-                velocityGeometry2.vertices = [];
-                delete velocityGeometry2;
-                velocityGeometry2 = null;
-                velocityGeometry2 = new THREE.Geometry();
 
                 var sunX = 0;
                 var sunY = 0;
@@ -451,7 +448,6 @@
                 for (i=0; i < frame; i++)
                 {
                     geometry2.vertices.push(new THREE.Vector3(positionVelocityArray[i][3] - positionVelocityArray[i][0], positionVelocityArray[i][4] - positionVelocityArray[i][1], positionVelocityArray[i][5] - positionVelocityArray[i][2]));
-                    //geometry2.vertices.push(new THREE.Vector3(0, 0, 0));
                 }
                 geometry.colors = colors;
                 line = new THREE.Line(geometry, material);
@@ -460,20 +456,6 @@
                 scene.add(line);
                 scene.add(line2);
 
-
-                if (velocities) {
-                    velocityGeometry.vertices.push(new THREE.Vector3(sunX , sunY, sunZ));
-                    velocityGeometry.vertices.push(new THREE.Vector3(sunX + sunVelX * factor , sunY + sunVelY * factor, sunZ + sunVelZ * factor));
-                    velocityGeometry.colors = velocityColors;
-                    velocity = new THREE.Line(velocityGeometry, material);
-                    scene.add(velocity);
-
-                    velocityGeometry2.vertices.push(new THREE.Vector3(earthX , earthY, earthZ));
-                    velocityGeometry2.vertices.push(new THREE.Vector3(earthX + earthVelX * factor , earthY + earthVelY * factor, earthZ + earthVelZ * factor));
-                    velocityGeometry2.colors = velocityColors;
-                    velocity2 = new THREE.Line(velocityGeometry2, material);
-                    scene.add(velocity2);
-                }
 
                 spotLight.position.set(camera.position.x, camera.position.y, camera.position.z);
                 spotLight2.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -493,6 +475,11 @@
 
             var delta = clock.getDelta();
             orbitControls.update(delta);
+            if (frame < positionVelocityArray.length - 1 )
+            {
+                if (RunSimulation)
+                    earth.rotation.y +=  delta;
+            }
 
             if (CameraFollowsearth)
                 camera.lookAt( new THREE.Vector3( earth.position.x, earth.position.y, earth.position.z));

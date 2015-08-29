@@ -96,6 +96,10 @@ ApplicationWindow {
                 title: "Real solar system"
                 page: "content/realsolarsystem.qml"
             }
+            ListElement {
+                title: "Curved space"
+                page: "content/curved-space.qml"
+            }
     }
 
     StackView {

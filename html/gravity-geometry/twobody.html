@@ -4,11 +4,11 @@
 
 <head>
     <title>Gravity - TwoBody problem in 3 Dimensions</title>
-    <script type="text/javascript" src="../libs/three.js"></script>
-    <script type="text/javascript" src="../libs/stats.js"></script>
-    <script type="text/javascript" src="../libs/dat.gui.js"></script>
-    <script type="text/javascript" src="../libs/OrbitControls.js"></script>
-    <script type="text/javascript" src="../mylibs/orbit.js"></script>
+    <script type="text/javascript" src="./libs/three.js"></script>
+    <script type="text/javascript" src="./libs/stats.js"></script>
+    <script type="text/javascript" src="./libs/dat.gui.js"></script>
+    <script type="text/javascript" src="./libs/OrbitControls.js"></script>
+    <script type="text/javascript" src="./mylibs/orbit.js"></script>
     <style>
         body{
             /* set margin to 0 and overflow to hidden, to go fullscreen */
@@ -327,7 +327,7 @@
         camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 50000 );
     	camera.target = new THREE.Vector3(0, 0, 0);
 
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
         renderer.setClearColor(new THREE.Color(0x000000, 1.0));
         renderer.shadowMapEnabled = true;
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -377,6 +377,11 @@
                 evaluate();
                 frame = 0;
             }
+            this.Screenshot = function() {
+                {
+                    window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
+                }
+            }
         }
 
         gui.add(controls, 'Mass1').onChange(function (e) { m1 = e;});
@@ -402,6 +407,7 @@
         gui.add(controls, 'm1RelativeToM2').onChange(function (e) {m1RelativeToM2 = e;});
         gui.add(controls, 'RunSimulation').onChange(function (e) { RunSimulation = e; });
         gui.add(controls, 'Restart');
+        gui.add(controls, 'Screenshot');
         render();
 
         function render()

@@ -31,3 +31,8 @@ eclipses
 
 Bugs: to do
 -----------------
+
+curved space for android is unfinished
+orbits do not render nice when zooming
+variables in qml do not match variables in js
+

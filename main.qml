@@ -12,7 +12,7 @@ ApplicationWindow {
 
     title: qsTr("Gravity and geometry")
     width: 1280
-    height: 768
+    height: 800
     color: "#000000"
     opacity: 1
     visible: true

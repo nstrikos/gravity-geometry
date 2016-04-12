@@ -6,7 +6,8 @@ SOURCES += main.cpp
 
 RESOURCES += qml.qrc
 
-RC_FILE = gravity-geometry.rc
+#Line commented because app cannot be built in windows
+#RC_FILE = gravity-geometry.rc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

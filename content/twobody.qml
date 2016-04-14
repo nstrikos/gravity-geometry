@@ -23,6 +23,7 @@ Rectangle {
     property bool controlsVisible: true
     property int parametersItemWidth: 300
     property int analysisItemWidth: 300
+    property bool componentCompleted: false
 
     function setDragging(value) {
         mainview.dragging = value;
@@ -531,6 +532,8 @@ Rectangle {
                     anchors.topMargin: 5
                     onValueChanged: {
                         m1PositionXLabel.text = "Position X: " + mass1XSlider.value
+                        if (componentCompleted)
+                            GLCode.setSphere1X(mass1XSlider.value)
                     }
                 }
                 Label {
@@ -553,6 +556,8 @@ Rectangle {
                     anchors.topMargin: 5
                     onValueChanged: {
                         m1PositionYLabel.text = "Position Y: " + mass1YSlider.value
+                        if (componentCompleted)
+                            GLCode.setSphere1Y(mass1YSlider.value)
                     }
                 }
                 Label {
@@ -575,6 +580,8 @@ Rectangle {
                     anchors.topMargin: 5
                     onValueChanged: {
                         m1PositionZLabel.text = "Position Z: " + mass1ZSlider.value
+                        if (componentCompleted)
+                            GLCode.setSphere1Z(mass1ZSlider.value)
                     }
                 }
                 Label {
@@ -693,6 +700,8 @@ Rectangle {
                     anchors.topMargin: 5
                     onValueChanged: {
                         m2PositionXLabel.text = "Position X: " + mass2XSlider.value
+                        if (componentCompleted)
+                            GLCode.setSphere2X(mass2XSlider.value)
                     }
                 }
                 Label {
@@ -714,6 +723,8 @@ Rectangle {
                     anchors.topMargin: 5
                     onValueChanged: {
                         m2PositionYLabel.text = "Position Y: " + mass2YSlider.value
+                        if (componentCompleted)
+                            GLCode.setSphere2Y(mass2YSlider.value)
                     }
                 }
                 Label {
@@ -735,7 +746,8 @@ Rectangle {
                     anchors.topMargin: 5
                     onValueChanged: {
                         m2PositionZLabel.text = "Position Z: " + mass2ZSlider.value
-
+                        if (componentCompleted)
+                            GLCode.setSphere2Z(mass2ZSlider.value)
                     }
                 }
                 Label {
@@ -948,6 +960,7 @@ Rectangle {
                 thetaSlider.anchors.topMargin
         //parametersFlickable.contentHeight = parametersFlickable.contentItem.childrenRect.height
         //analysisFlickable.contentHeight = analysisFlickable.contentItem.childrenRect.height
+        componentCompleted = true
     }
 }
 

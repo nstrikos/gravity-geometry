@@ -200,16 +200,19 @@ function paintGL(canvas) {
 
 
 
-    for (var i = frame - 1; i < positionVelocityArray.length - 1; i++)
+    if (frame > 0)
     {
-        orbitGeometry.dynamic = true;
-        orbitGeometry2.dynamic = true;
-        orbitGeometry.vertices[i].x = sphere1X;
-        orbitGeometry.vertices[i].y = sphere1Y;
-        orbitGeometry.vertices[i].z = sphere1Z;
-        orbitGeometry2.vertices[i].x = sphere2X;
-        orbitGeometry2.vertices[i].y = sphere2Y;
-        orbitGeometry2.vertices[i].z = sphere2Z;
+        for (var i = frame - 1; i < positionVelocityArray.length - 1; i++)
+        {
+            orbitGeometry.dynamic = true;
+            orbitGeometry2.dynamic = true;
+            orbitGeometry.vertices[i].x = sphere1X;
+            orbitGeometry.vertices[i].y = sphere1Y;
+            orbitGeometry.vertices[i].z = sphere1Z;
+            orbitGeometry2.vertices[i].x = sphere2X;
+            orbitGeometry2.vertices[i].y = sphere2Y;
+            orbitGeometry2.vertices[i].z = sphere2Z;
+        }
     }
     orbitGeometry.verticesNeedUpdate = true;
     orbitGeometry2.verticesNeedUpdate = true;
@@ -465,6 +468,7 @@ function evaluate(mass1, mass2, x1, y1, z1, x2, y2, z2, velx1, vely1, velz1, vel
     //delete line;
     //line = null;
     evaluateArray();
+    runSimulation = true;
 }
 
 function addOrbits()
@@ -518,4 +522,70 @@ function setVelFactor(value)
 function restart()
 {
     frame = 0;
+}
+
+function setSphere1X(value)
+{
+    frame = 0;
+    runSimulation = false;
+    positionVelocityArray[frame][0] = value;
+    clearOrbits();
+}
+
+function setSphere1Y(value)
+{
+    frame = 0;
+    runSimulation = false;
+    positionVelocityArray[frame][1] = value;
+    clearOrbits();
+}
+
+function setSphere1Z(value)
+{
+    frame = 0;
+    runSimulation = false;
+    positionVelocityArray[frame][2] = value;
+    clearOrbits();
+}
+
+function setSphere2X(value)
+{
+    frame = 0;
+    runSimulation = false;
+    positionVelocityArray[frame][3] = value;
+    clearOrbits();
+}
+
+function setSphere2Y(value)
+{
+    frame = 0;
+    runSimulation = false;
+    positionVelocityArray[frame][4] = value;
+    clearOrbits();
+}
+
+function setSphere2Z(value)
+{
+    frame = 0;
+    runSimulation = false;
+    positionVelocityArray[frame][5] = value;
+    clearOrbits();
+}
+
+function clearOrbits()
+{
+    for (var i = 0; i < positionVelocityArray.length - 1; i++)
+    {
+        orbitGeometry.dynamic = true;
+        orbitGeometry2.dynamic = true;
+        orbitGeometry.vertices[i].x = 0;
+        orbitGeometry.vertices[i].y = 0;
+        orbitGeometry.vertices[i].z = 0;
+        orbitGeometry2.vertices[i].x = 0;
+        orbitGeometry2.vertices[i].y = 0;
+        orbitGeometry2.vertices[i].z = 0;
+    }
+
+    orbitGeometry.verticesNeedUpdate = true;
+    orbitGeometry2.verticesNeedUpdate = true;
 }

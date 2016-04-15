@@ -492,10 +492,11 @@ Rectangle {
                 Label {
                     id: m1Label
                     color: "#ffffff"
-                    text: "Mass1 "
+                    text: "Mass "
                     anchors.top: redSphereLabel.bottom
                     anchors.topMargin: 20
                 }
+
                 Slider {
                     id: m1Slider
                     value: 100
@@ -503,45 +504,113 @@ Rectangle {
                     stepSize: 1
                     minimumValue: 1
                     maximumValue: 100
-                    //height: 40
-                    width: parent.width
                     anchors.top: m1Label.bottom
                     anchors.topMargin: 5
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     onValueChanged: {
                         var i = m1Slider.value * 1e24;
-                        m1Label.text = "Mass1 : " + i.toExponential(0)
+                        m1Label.text = "Mass : " + i.toExponential(0)
                     }
+                }
+                Label {
+                    id: m1PositionsLabel
+                    color: "#ffffff"
+                    text: "Position "
+                    anchors.top: m1Slider.bottom
+                    anchors.topMargin: 10
                 }
                 Label {
                     id: m1PositionXLabel
                     color: "#ffffff"
-                    text: "Position X: 0"
-                    anchors.top: m1Slider.bottom
-                    anchors.topMargin: 20
+                    text: "X:"
+                    anchors.top: m1PositionsLabel.bottom
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: mass1XSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m1PositionsLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m1PositionXLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m1PositionXLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            mass1XSlider.value = mass1XSpinbox.value
+                            GLCode.setSphere1X(mass1XSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: mass1XSlider
                     value: 0
-                    activeFocusOnPress: false
+                    activeFocusOnPress: true
                     stepSize: 1
                     minimumValue: -3000
                     maximumValue: 3000
                     //height: 40
-                    width: parent.width
-                    anchors.top: m1PositionXLabel.bottom
+                    anchors.left: mass1XSpinbox.left
+                    anchors.right: parent.right
+                    anchors.top: mass1XSpinbox.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m1PositionXLabel.text = "Position X: " + mass1XSlider.value
                         if (componentCompleted)
+                        {
+                            mass1XSpinbox.value = mass1XSlider.value
                             GLCode.setSphere1X(mass1XSlider.value)
+                        }
                     }
                 }
                 Label {
                     id: m1PositionYLabel
                     color: "#ffffff"
-                    text: "Position Y: 0"
+                    text: "Y:"
                     anchors.top: mass1XSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: mass1YSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: mass1XSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m1PositionYLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m1PositionYLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            mass1YSlider.value = mass1YSpinbox.value
+                            GLCode.setSphere1Y(mass1YSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: mass1YSlider
@@ -551,21 +620,53 @@ Rectangle {
                     minimumValue: -3000
                     maximumValue: 3000
                     //height: 40
-                    width: parent.width
-                    anchors.top: m1PositionYLabel.bottom
+                    anchors.left: mass1YSpinbox.left
+                    anchors.right: parent.right
+                    anchors.top: mass1YSpinbox.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m1PositionYLabel.text = "Position Y: " + mass1YSlider.value
                         if (componentCompleted)
+                        {
+                            mass1YSpinbox.value = mass1YSlider.value
                             GLCode.setSphere1Y(mass1YSlider.value)
+                        }
                     }
                 }
                 Label {
                     id: m1PositionZLabel
                     color: "#ffffff"
-                    text: "Position Z: 0"
+                    text: "Z:"
                     anchors.top: mass1YSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: mass1ZSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: mass1YSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m1PositionZLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m1PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            mass1ZSlider.value = mass1ZSpinbox.value
+                            GLCode.setSphere1Z(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: mass1ZSlider
@@ -575,21 +676,61 @@ Rectangle {
                     minimumValue: -3000
                     maximumValue: 3000
                     //height: 40
-                    width: parent.width
-                    anchors.top: m1PositionZLabel.bottom
+                    //width: parent.width
+                    anchors.left: mass1ZSpinbox.left
+                    anchors.right: parent.right
+                    anchors.top: mass1ZSpinbox.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m1PositionZLabel.text = "Position Z: " + mass1ZSlider.value
                         if (componentCompleted)
+                        {
+                            mass1ZSpinbox.value = mass1ZSlider.value
                             GLCode.setSphere1Z(mass1ZSlider.value)
+                        }
                     }
+                }
+                Label {
+                    id: m1VelocityLabel
+                    color: "#ffffff"
+                    text: "Velocity"
+                    anchors.top: mass1ZSlider.bottom
+                    anchors.topMargin: 20
                 }
                 Label {
                     id: m1VelXLabel
                     color: "#ffffff"
-                    text: "Velocity X: 0"
-                    anchors.top: mass1ZSlider.bottom
-                    anchors.topMargin: 20
+                    text: "X:"
+                    anchors.top: m1VelocityLabel.bottom
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: m1VelXSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m1VelocityLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m1VelXLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m1PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            m1VelXSlider.value = m1VelXSpinbox.value
+                            //GLCode.setSphere1(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: m1VelXSlider
@@ -598,42 +739,108 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -300
                     maximumValue: 300
+                    anchors.left: m1VelXSpinbox.left
+                    anchors.right: parent.right
                     //height: 20
-                    width: parent.width
                     anchors.top: m1VelXLabel.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m1VelXLabel.text = "Velocity X: " + m1VelXSlider.value
+                        if (componentCompleted)
+                        {
+                            m1VelXSpinbox.value = m1VelXSlider.value
+                        }
                     }
                 }
                 Label {
                     id: m1VelYLabel
                     color: "#ffffff"
-                    text: "Velocity Y: 5"
+                    text: "Y:"
                     anchors.top: m1VelXSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 5
+                }
+                SpinBox {
+                    id: m1VelYSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m1VelXSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m1VelYLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m1PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            m1VelYSlider.value = m1VelYSpinbox.value
+                            //GLCode.setSphere1(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: m1VelYSlider
-                    value: 5
+                    value: 0
                     activeFocusOnPress: true
                     stepSize: 1
                     minimumValue: -300
                     maximumValue: 300
+                    anchors.left: m1VelYSpinbox.left
+                    anchors.right: parent.right
                     //height: 20
-                    width: parent.width
                     anchors.top: m1VelYLabel.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m1VelYLabel.text = "Velocity Y: " + m1VelYSlider.value
+                        if (componentCompleted)
+                        {
+                            m1VelYSpinbox.value = m1VelYSlider.value
+                        }
                     }
                 }
                 Label {
                     id: m1VelZLabel
                     color: "#ffffff"
-                    text: "Velocity Z: 0"
+                    text: "Z:"
                     anchors.top: m1VelYSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 5
+                }
+                SpinBox {
+                    id: m1VelZSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m1VelYSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m1VelZLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m1PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            m1VelZSlider.value = m1VelZSpinbox.value
+                            //GLCode.setSphere1(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: m1VelZSlider
@@ -642,12 +849,16 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -300
                     maximumValue: 300
+                    anchors.left: m1VelZSpinbox.left
+                    anchors.right: parent.right
                     //height: 20
-                    width: parent.width
                     anchors.top: m1VelZLabel.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m1VelZLabel.text = "Velocity Z: " + m1VelZSlider.value
+                        if (componentCompleted)
+                        {
+                            m1VelZSpinbox.value = m1VelZSlider.value
+                        }
                     }
                 }
                 Label {
@@ -682,11 +893,47 @@ Rectangle {
                     }
                 }
                 Label {
+                    id: m2PositionsLabel
+                    color: "#ffffff"
+                    text: "Position "
+                    anchors.top: m2Slider.bottom
+                    anchors.topMargin: 10
+                }
+                Label {
                     id: m2PositionXLabel
                     color: "#ffffff"
-                    text: "Position X: 0"
-                    anchors.top: m2Slider.bottom
-                    anchors.topMargin: 20
+                    text: "X:"
+                    anchors.top: m2PositionsLabel.bottom
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: mass2XSpinbox
+                    value: 0
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m2PositionsLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m2PositionXLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m2PositionXLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            mass2XSlider.value = mass2XSpinbox.value
+                            GLCode.setSphere2X(mass2XSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: mass2XSlider
@@ -695,21 +942,54 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -3000
                     maximumValue: 3000
-                    width: parent.width
-                    anchors.top: m2PositionXLabel.bottom
+                    //height: 40
+                    anchors.left: mass2XSpinbox.left
+                    anchors.right: parent.right
+                    anchors.top: mass2XSpinbox.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m2PositionXLabel.text = "Position X: " + mass2XSlider.value
                         if (componentCompleted)
+                        {
+                            mass2XSpinbox.value = mass2XSlider.value
                             GLCode.setSphere2X(mass2XSlider.value)
+                        }
                     }
                 }
                 Label {
                     id: m2PositionYLabel
                     color: "#ffffff"
-                    text: "Position Y: 0"
+                    text: "Y:"
                     anchors.top: mass2XSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: mass2YSpinbox
+                    value: -3000
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: mass2XSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m2PositionYLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m2PositionYLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            mass2YSlider.value = mass2YSpinbox.value
+                            GLCode.setSphere2Y(mass2YSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: mass2YSlider
@@ -718,21 +998,54 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -3000
                     maximumValue: 3000
-                    width: parent.width
-                    anchors.top: m2PositionYLabel.bottom
+                    //height: 40
+                    anchors.left: mass2YSpinbox.left
+                    anchors.right: parent.right
+                    anchors.top: mass2YSpinbox.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m2PositionYLabel.text = "Position Y: " + mass2YSlider.value
                         if (componentCompleted)
+                        {
+                            mass2YSpinbox.value = mass2YSlider.value
                             GLCode.setSphere2Y(mass2YSlider.value)
+                        }
                     }
                 }
                 Label {
                     id: m2PositionZLabel
                     color: "#ffffff"
-                    text: "Position Z: 0"
+                    text: "Z:"
                     anchors.top: mass2YSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: mass2ZSpinbox
+                    value: -3000
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: mass2YSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m2PositionZLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m2PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            mass2ZSlider.value = mass2ZSpinbox.value
+                            GLCode.setSphere2Z(mass2ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: mass2ZSlider
@@ -741,21 +1054,62 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -3000
                     maximumValue: 3000
-                    width: parent.width
-                    anchors.top: m2PositionZLabel.bottom
+                    //height: 40
+                    //width: parent.width
+                    anchors.left: mass2ZSpinbox.left
+                    anchors.right: parent.right
+                    anchors.top: mass2ZSpinbox.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m2PositionZLabel.text = "Position Z: " + mass2ZSlider.value
                         if (componentCompleted)
+                        {
+                            mass2ZSpinbox.value = mass2ZSlider.value
                             GLCode.setSphere2Z(mass2ZSlider.value)
+                        }
                     }
+                }
+                Label {
+                    id: m2VelocityLabel
+                    color: "#ffffff"
+                    text: "Velocity"
+                    anchors.top: mass2ZSlider.bottom
+                    anchors.topMargin: 20
                 }
                 Label {
                     id: m2VelXLabel
                     color: "#ffffff"
-                    text: "Velocity X: 12"
-                    anchors.top: mass2ZSlider.bottom
-                    anchors.topMargin: 20
+                    text: "X:"
+                    anchors.top: m2VelocityLabel.bottom
+                    anchors.topMargin: 10
+                }
+                SpinBox {
+                    id: m2VelXSpinbox
+                    value: 12
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m2VelocityLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m2VelXLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m2PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            m2VelXSlider.value = m2VelXSpinbox.value
+                            //GLCode.setSphere1(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: m2VelXSlider
@@ -764,19 +1118,53 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -300
                     maximumValue: 300
-                    width: parent.width
+                    anchors.left: m2VelXSpinbox.left
+                    anchors.right: parent.right
+                    //height: 20
                     anchors.top: m2VelXLabel.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m2VelXLabel.text = "Velocity X: " + m2VelXSlider.value
+                        if (componentCompleted)
+                        {
+                            m2VelXSpinbox.value = m2VelXSlider.value
+                        }
                     }
                 }
                 Label {
                     id: m2VelYLabel
                     color: "#ffffff"
-                    text: "Velocity Y: -3"
+                    text: "Y:"
                     anchors.top: m2VelXSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 5
+                }
+                SpinBox {
+                    id: m2VelYSpinbox
+                    value: -3
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m2VelXSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m2VelYLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m2PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            m2VelYSlider.value = m2VelYSpinbox.value
+                            //GLCode.setSphere1(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: m2VelYSlider
@@ -785,19 +1173,53 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -300
                     maximumValue: 300
-                    width: parent.width
+                    anchors.left: m2VelYSpinbox.left
+                    anchors.right: parent.right
+                    //height: 20
                     anchors.top: m2VelYLabel.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m2VelYLabel.text = "Velocity Y: " + m2VelYSlider.value
+                        if (componentCompleted)
+                        {
+                            m2VelYSpinbox.value = m2VelYSlider.value
+                        }
                     }
                 }
                 Label {
                     id: m2VelZLabel
                     color: "#ffffff"
-                    text: "Velocity Z: 12"
+                    text: "Z:"
                     anchors.top: m2VelYSlider.bottom
-                    anchors.topMargin: 20
+                    anchors.topMargin: 5
+                }
+                SpinBox {
+                    id: m2VelZSpinbox
+                    value: 12
+                    minimumValue: -3000
+                    maximumValue: 3000
+                    z: 1
+                    anchors.top: m2VelYSlider.bottom
+                    anchors.topMargin: 10
+                    anchors.left: m2VelZLabel.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 20
+                    style: SpinBoxStyle{
+                        background: Rectangle {
+                            //implicitWidth: 100
+                            implicitHeight: m2PositionZLabel.height
+                            border.color: "white"
+                            color: "black"
+                            radius: 2
+                        }
+                        textColor: "white"
+                    }
+                    onValueChanged: {
+                        if (componentCompleted)
+                        {
+                            m2VelZSlider.value = m2VelZSpinbox.value
+                            //GLCode.setSphere1(mass1ZSpinbox.value)
+                        }
+                    }
                 }
                 Slider {
                     id: m2VelZSlider
@@ -806,11 +1228,16 @@ Rectangle {
                     stepSize: 1
                     minimumValue: -300
                     maximumValue: 300
-                    width: parent.width
+                    anchors.left: m2VelZSpinbox.left
+                    anchors.right: parent.right
+                    //height: 20
                     anchors.top: m2VelZLabel.bottom
                     anchors.topMargin: 5
                     onValueChanged: {
-                        m2VelZLabel.text = "Velocity Z: " + m2VelZSlider.value
+                        if (componentCompleted)
+                        {
+                            m2VelZSpinbox.value = m2VelZSlider.value
+                        }
                     }
                 }
 

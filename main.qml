@@ -2,11 +2,14 @@ import QtQuick 2.0
 import QtCanvas3D 1.0
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.0
 
 import "content"
 
 ApplicationWindow {
     id: mainview
+    visible: true
+    visibility: Window.Maximized
     FontLoader { id: myCustomFont; source: "qrc:/fonts/LiberationSans-Regular.ttf" }
 
 
@@ -15,7 +18,6 @@ ApplicationWindow {
     height: 800
     color: "#000000"
     opacity: 1
-    visible: true
 
     property bool dragging
     property int userInfoWidth

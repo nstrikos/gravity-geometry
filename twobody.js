@@ -20,7 +20,8 @@ var spotLight2;
 var phiAscending = true;
 var m1, m2, Mass1PositionX, Mass1PositionY, Mass1PositionZ, Mass2PositionX, Mass2PositionY, Mass2PositionZ;
 var Mass1VelocityX, Mass1VelocityY, Mass1VelocityZ, Mass2VelocityX, Mass2VelocityY, Mass2VelocityZ;
-var orbitGeometry, lineOrbit, orbitMaterial;
+var orbitGeometry, lineOrbit, orbitMaterial
+var particleSystem, particleSystem2;
 var orbitGeometry2, lineOrbit2, orbitMaterial2;
 var velGeometry, velGeometry2, velLine, velLine2, velMaterial;
 var autoRotate, relativeMotion;
@@ -201,21 +202,58 @@ function paintGL(canvas) {
 
 
     if (frame > 0)
-    {
-        for (var i = frame - 1; i < positionVelocityArray.length - 1; i++)
         {
-            orbitGeometry.dynamic = true;
-            orbitGeometry2.dynamic = true;
-            orbitGeometry.vertices[i].x = sphere1X;
-            orbitGeometry.vertices[i].y = sphere1Y;
-            orbitGeometry.vertices[i].z = sphere1Z;
-            orbitGeometry2.vertices[i].x = sphere2X;
-            orbitGeometry2.vertices[i].y = sphere2Y;
-            orbitGeometry2.vertices[i].z = sphere2Z;
+            for (var i = frame - 1; i < positionVelocityArray.length - 1; i++)
+            {
+                orbitGeometry.dynamic = true;
+                orbitGeometry2.dynamic = true;
+                orbitGeometry.vertices[i].x = sphere1X;
+                orbitGeometry.vertices[i].y = sphere1Y;
+                orbitGeometry.vertices[i].z = sphere1Z;
+                orbitGeometry2.vertices[i].x = sphere2X;
+                orbitGeometry2.vertices[i].y = sphere2Y;
+                orbitGeometry2.vertices[i].z = sphere2Z;
+            }
         }
-    }
-    orbitGeometry.verticesNeedUpdate = true;
-    orbitGeometry2.verticesNeedUpdate = true;
+        orbitGeometry.verticesNeedUpdate = true;
+        orbitGeometry2.verticesNeedUpdate = true;
+
+    //Particle system
+    //    var verts = particleSystem.geometry.vertices;
+    //    var vert = verts[frame];
+
+    //    if (!relativeMotion)
+    //    {
+    //        vert.x = positionVelocityArray[frame][0];
+    //        vert.y = positionVelocityArray[frame][1];
+    //        vert.z = positionVelocityArray[frame][2];
+    //    }
+    //    else
+    //    {
+    //        vert.x = 0;
+    //        vert.y = 0;
+    //        vert.z = 0;
+    //    }
+
+    //    particleSystem.geometry.verticesNeedUpdate = true;
+
+    //    var verts2 = particleSystem2.geometry.vertices;
+    //    var vert2 = verts2[frame];
+
+    //    if (!relativeMotion)
+    //    {
+    //        vert2.x = positionVelocityArray[frame][3];
+    //        vert2.y = positionVelocityArray[frame][4];
+    //        vert2.z = positionVelocityArray[frame][5];
+    //    }
+    //    else
+    //    {
+    //        vert2.x = positionVelocityArray[frame][3] - positionVelocityArray[frame][0];
+    //        vert2.y = positionVelocityArray[frame][4] - positionVelocityArray[frame][1];
+    //        vert2.z = positionVelocityArray[frame][5] - positionVelocityArray[frame][2];
+    //    }
+
+    //    particleSystem2.geometry.verticesNeedUpdate = true;
 
     velGeometry.vertices[0].x = sphere1X;
     velGeometry.vertices[0].y = sphere1Y;
@@ -403,7 +441,7 @@ function addLights()
 
 function addSpheres()
 {
-    var sphereGeometry = new THREE.SphereGeometry(300, 20, 20);
+    var sphereGeometry = new THREE.SphereGeometry(300, 30, 30);
     var material = new THREE.MeshPhongMaterial({color: 0xff7777});
     var material2 = new THREE.MeshPhongMaterial({color: 0x7777ff});
 
@@ -461,6 +499,9 @@ function evaluate(mass1, mass2, x1, y1, z1, x2, y2, z2, velx1, vely1, velz1, vel
     Mass2VelocityX = velx2;
     Mass2VelocityY = vely2;
     Mass2VelocityZ = velz2;
+
+    clearOrbits();
+
     positionVelocityArray = [];
     delete positionVelocityArray;
     positionVelocityArray = null;
@@ -473,6 +514,7 @@ function evaluate(mass1, mass2, x1, y1, z1, x2, y2, z2, velx1, vely1, velz1, vel
 
 function addOrbits()
 {
+
     for (var i = 0; i < positionVelocityArray.length - 1; i++)
     {
         orbitGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
@@ -485,6 +527,38 @@ function addOrbits()
     scene.add(lineOrbit);
     scene.add(lineOrbit2);
 
+    //Particle system
+
+    //    var particleCount = positionVelocityArray.length,
+    //            particles = new THREE.Geometry(),
+    //            pMaterial = new THREE.PointCloudMaterial({
+    //                                                         color: 0xff0049,
+    //                                                         size: 40
+    //                                                    });
+    //    for (var p = 0; p < particleCount; p++) {
+    //        var    particle = new THREE.Vector3(0, 0, 0);
+    //        particles.vertices.push(particle);
+    //    }
+
+    //    particleSystem = new THREE.PointCloud(particles, pMaterial);
+    //    scene.add(particleSystem);
+
+    //    var particleCount2 = positionVelocityArray.length,
+    //            particles2 = new THREE.Geometry(),
+    //            pMaterial2 = new THREE.PointCloudMaterial({
+    //                                                          color: 0x4900ff,
+    //                                                          size: 40
+    //                                                      });
+
+    //    for (p = 0; p < particleCount; p++) {
+    //        var    particle2 = new THREE.Vector3(0, 0, 0);
+    //        particles2.vertices.push(particle2);
+    //    }
+
+    //    particleSystem2 = new THREE.PointCloud(
+    //                particles2,
+    //                pMaterial2);
+    //    scene.add(particleSystem2);
 }
 
 function addVelocities()
@@ -508,6 +582,7 @@ function setRotate(value)
 function setRelativeMotion(value)
 {
     relativeMotion = value;
+    clearOrbits();
     positionVelocityArray = [];
     delete positionVelocityArray;
     positionVelocityArray = null;
@@ -574,18 +649,37 @@ function setSphere2Z(value)
 
 function clearOrbits()
 {
-    for (var i = 0; i < positionVelocityArray.length - 1; i++)
-    {
-        orbitGeometry.dynamic = true;
-        orbitGeometry2.dynamic = true;
-        orbitGeometry.vertices[i].x = 0;
-        orbitGeometry.vertices[i].y = 0;
-        orbitGeometry.vertices[i].z = 0;
-        orbitGeometry2.vertices[i].x = 0;
-        orbitGeometry2.vertices[i].y = 0;
-        orbitGeometry2.vertices[i].z = 0;
-    }
+        for (var i = 0; i < positionVelocityArray.length - 1; i++)
+        {
+            orbitGeometry.dynamic = true;
+            orbitGeometry2.dynamic = true;
+            orbitGeometry.vertices[i].x = 0;
+            orbitGeometry.vertices[i].y = 0;
+            orbitGeometry.vertices[i].z = 0;
+            orbitGeometry2.vertices[i].x = 0;
+            orbitGeometry2.vertices[i].y = 0;
+            orbitGeometry2.vertices[i].z = 0;
+        }
 
-    orbitGeometry.verticesNeedUpdate = true;
-    orbitGeometry2.verticesNeedUpdate = true;
+        orbitGeometry.verticesNeedUpdate = true;
+        orbitGeometry2.verticesNeedUpdate = true;
+
+
+    //Particle system
+//    var particleCount = positionVelocityArray.length;
+//    var verts = particleSystem.geometry.vertices;
+//    var verts2 = particleSystem2.geometry.vertices;
+//    for (var i = 0; i < particleCount; i++)
+//    {
+//        var vert = verts[i];
+//        var vert2 = verts2[i];
+//        vert.x = 0;
+//        vert.y = 0;
+//        vert.z = 0;
+//        vert2.x = 0;
+//        vert2.y = 0;
+//        vert2.z = 0;
+//    }
+//    particleSystem.geometry.verticesNeedUpdate = true;
+//    particleSystem2.geometry.verticesNeedUpdate = true;
 }

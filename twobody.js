@@ -42,10 +42,9 @@ function initializeGL(canvas, eventSource) {
     //This is very important
     //Set camera length
 
-    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 10, 50000 );
+    camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 10, 50000);
     camera.target = new THREE.Vector3(0, 0, 0);
     camera.position.set( camera_x, camera_y, camera_z);
-
 
     addReferencePlane();
     addSpheres();
@@ -451,6 +450,9 @@ function addSpheres()
 
     sphere2 = new THREE.Mesh(sphereGeometry, material2);
     scene.add(sphere2);
+
+    sphere1.frustumCulled = false;
+    sphere2.frustumCulled = false;
 }
 
 function addReferencePlane()
@@ -527,6 +529,10 @@ function addOrbits()
     scene.add(lineOrbit);
     scene.add(lineOrbit2);
 
+    lineOrbit.frustumCulled = false;
+    lineOrbit2.frustumCulled = false;
+
+
     //Particle system
 
     //    var particleCount = positionVelocityArray.length,
@@ -572,6 +578,8 @@ function addVelocities()
     velLine2 =  new THREE.Line(velGeometry2, velMaterial);
     scene.add(velLine2);
 
+    velLine.frustumCulled = false;
+    velLine2.frustumCulled = false;
 }
 
 function setRotate(value)

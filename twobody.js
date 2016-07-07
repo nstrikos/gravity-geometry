@@ -30,6 +30,7 @@ var velFactor;
 var thetaSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal thetaChanged(double value) }', Qt.application, 'ThetaSender');
 var phiSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal phiChanged(double value) }', Qt.application, 'PhiSender');
 var draggingSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal draggingSignal(bool value) }', Qt.application, 'DraggingSender');
+var distanceSender = Qt.createQmlObject('import QtQuick 2.0; QtObject {signal distanceChanged(double value) }', Qt.application, 'DistanceSender');
 
 
 function initializeGL(canvas, eventSource) {
@@ -60,6 +61,7 @@ function initializeGL(canvas, eventSource) {
     eventSource.mouseDown.connect(onDocumentMouseDown);
     eventSource.mouseUp.connect(onDocumentMouseUp);
     eventSource.mouseMove.connect(onDocumentMouseMove);
+    eventSource.mouseWheel.connect(onDocumentMouseWheel);
 }
 
 function resizeGL(canvas) {
@@ -286,6 +288,10 @@ function setPhi(value)
 function setDistance(value)
 {
     distance = 16000 - value;
+    if (distance < 4000)
+        distance = 4000;
+    if (distance > 16000)
+        distance = 16000;
 }
 
 function onDocumentMouseDown(x, y) {
@@ -313,6 +319,22 @@ function onDocumentMouseUp(x, y) {
 function onDocumentMouseMove(x, y) {
     end_x = x;
     end_y = y;
+}
+
+function onDocumentMouseWheel (a, b)
+{
+    if (b < 0) {
+        distance -=100;
+    }
+    else if (b > 0){
+        distance += 100;
+    }
+    if (distance < 4000)
+        distance = 4000;
+    if (distance > 16000)
+        distance = 16000;
+
+    distanceSender.distanceChanged(16000 - distance);
 }
 
 function resetView()

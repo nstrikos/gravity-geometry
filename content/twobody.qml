@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import QtCanvas3D 1.0
+import QtCanvas3D 1.1
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
@@ -350,13 +350,16 @@ Rectangle {
                         value: 8000
                         activeFocusOnPress: true
                         stepSize: 1
-                        minimumValue: 1
+                        minimumValue: 0
                         maximumValue: 12000
                         height: 20
                         width: parent.width
                         anchors.top: distanceLabel.bottom
                         anchors.topMargin: 5
                         onValueChanged: GLCode.setDistance(distanceSlider.value)
+                        function setDistance(value) {
+                            distanceSlider.value = value
+                        }
                     }
                     Label {
                         id: zLabel
@@ -1356,6 +1359,7 @@ Rectangle {
         GLCode.thetaSender.thetaChanged.connect(thetaSlider.setTheta);
         GLCode.draggingSender.draggingSignal.connect(mainview.setDragging);
         GLCode.phiSender.phiChanged.connect(phiSlider.setPhi);
+        GLCode.distanceSender.distanceChanged.connect(distanceSlider.setDistance);
         //We set here the flickable content height property
         //because of a binding property issue
         //flickable.contentHeight = flickable.contentItem.childrenRect.height

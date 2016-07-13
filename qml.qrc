@@ -29,5 +29,8 @@
         <file>curved-space.js</file>
         <file>content/curved-space.qml</file>
         <file>images/square.png</file>
+        <file>content/surface.qml</file>
+        <file>surface.js</file>
+        <file>images/ground.jpg</file>
     </qresource>
 </RCC>

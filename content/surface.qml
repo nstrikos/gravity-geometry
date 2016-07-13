@@ -4,7 +4,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 
-import "../twobody.js" as GLCode
+import "../surface.js" as GLCode
 
 
 Rectangle {
@@ -18,7 +18,7 @@ Rectangle {
 
 
     property bool dragging
-    property bool autoRotate : true
+    property bool autoRotate : false
     property bool relativeMotion : false
     property bool controlsVisible: true
     property int parametersItemWidth: 300
@@ -306,7 +306,7 @@ Rectangle {
                     Rectangle {
                         id: autoRotateButton
                         radius: 10
-                        color: "lightblue"
+                        color: "lightgrey"
                         width: parent.width
                         height: 50
                         anchors.top: analysisButton.bottom
@@ -316,7 +316,7 @@ Rectangle {
                             anchors.fill: parent
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
-                            text: "Auto rotate enabled"
+                            text: "Auto rotate disabled"
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -373,7 +373,7 @@ Rectangle {
                         id: phiSlider
                         value: Math.PI / 4;
                         activeFocusOnPress: true
-                        minimumValue: -Math.PI / 2
+                        minimumValue: Math.PI / 45
                         maximumValue: Math.PI / 2
                         width: parent.width
                         height: 20
@@ -487,7 +487,7 @@ Rectangle {
                 Label {
                     id: redSphereLabel
                     color: "#ffffff"
-                    text: "Red sphere parameters"
+                    text: "Velocity"
                     font.bold: true
                     anchors.top: parent.top
                 }
@@ -709,8 +709,8 @@ Rectangle {
                 SpinBox {
                     id: m1VelXSpinbox
                     value: 0
-                    minimumValue: -300
-                    maximumValue: 300
+                    minimumValue: -3000
+                    maximumValue: 3000
                     z: 1
                     anchors.top: m1VelocityLabel.bottom
                     anchors.topMargin: 10
@@ -764,8 +764,8 @@ Rectangle {
                 SpinBox {
                     id: m1VelYSpinbox
                     value: 0
-                    minimumValue: -300
-                    maximumValue: 300
+                    minimumValue: -3000
+                    maximumValue: 3000
                     z: 1
                     anchors.top: m1VelXSlider.bottom
                     anchors.topMargin: 10
@@ -819,8 +819,8 @@ Rectangle {
                 SpinBox {
                     id: m1VelZSpinbox
                     value: 0
-                    minimumValue: -300
-                    maximumValue: 300
+                    minimumValue: -3000
+                    maximumValue: 3000
                     z: 1
                     anchors.top: m1VelYSlider.bottom
                     anchors.topMargin: 10
@@ -1088,8 +1088,8 @@ Rectangle {
                 SpinBox {
                     id: m2VelXSpinbox
                     value: 12
-                    minimumValue: -300
-                    maximumValue: 300
+                    minimumValue: -3000
+                    maximumValue: 3000
                     z: 1
                     anchors.top: m2VelocityLabel.bottom
                     anchors.topMargin: 10
@@ -1143,8 +1143,8 @@ Rectangle {
                 SpinBox {
                     id: m2VelYSpinbox
                     value: -3
-                    minimumValue: -300
-                    maximumValue: 300
+                    minimumValue: -3000
+                    maximumValue: 3000
                     z: 1
                     anchors.top: m2VelXSlider.bottom
                     anchors.topMargin: 10
@@ -1198,8 +1198,8 @@ Rectangle {
                 SpinBox {
                     id: m2VelZSpinbox
                     value: 12
-                    minimumValue: -300
-                    maximumValue: 300
+                    minimumValue: -3000
+                    maximumValue: 3000
                     z: 1
                     anchors.top: m2VelYSlider.bottom
                     anchors.topMargin: 10
@@ -1394,4 +1394,3 @@ Rectangle {
         componentCompleted = true
     }
 }
-

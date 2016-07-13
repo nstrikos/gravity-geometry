@@ -83,6 +83,10 @@ ApplicationWindow {
                 page: "content/conics.qml"
             }
             ListElement {
+                title: "Gravity on the surface of the earth"
+                page: "content/surface.qml"
+            }
+            ListElement {
                 title: "Two body problem"
                 page: "content/twobody.qml"
             }

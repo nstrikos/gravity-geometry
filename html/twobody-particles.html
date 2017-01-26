@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Gravity - TwoBody problem in 3 Dimensions</title>
+    <script type="text/javascript" src="./libs/three.min.js"></script>
+    <script type="text/javascript" src="./libs/stats.min.js"></script>
+    <script type="text/javascript" src="./libs/dat.gui.min.js"></script>
+    <script type="text/javascript" src="./libs/OrbitControls.js"></script>
+    <script type="text/javascript" src="./mylibs/orbit.js"></script>
+    <style>
+        body{
+            /* set margin to 0 and overflow to hidden, to go fullscreen */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="Stats-output">
+</div>
+
+<!-- Div which will hold the Output -->
+<div id="WebGL-output">
+</div>
+
+<!-- Javascript code that runs our Three.js examples -->
+<script type="text/javascript">
+
+    var camera, scene, renderer, stats, orbitControls, clock;
+    var text2;
+
+    var sphere1, sphere2;
+    var spotLight1, spotLight2;
+    var axes, plane;
+
+    var frame;
+    var gui, params;
+
+    var RunSimulation, AutoRotate, CameraFollowsSphere1, m1RelativeToM2, velocities, ReferencePlane;
+
+    var x, xstop, h, G
+    var m1, m2;
+    var Mass1PositionX, Mass1PositionY, Mass1PositionZ, Mass2PositionX, Mass2PositionY, Mass2PositionZ;
+    var Mass1VelocityX, Mass1VelocityY, Mass1VelocityZ, Mass2VelocityX, Mass2VelocityY, Mass2VelocityZ;
+
+    var velFactor;
+
+    var ncolumns, nrows;
+    var positionVelocityArray = new Array(nrows);
+    var y;
+    var distance1, distance2, maxDistance;
+    var factor;
+	var particleSystem, particleSystem2, particleCount;
+	var orbitGeometry, lineOrbit, orbitMaterial;
+	var orbitGeometry2, lineOrbit2, orbitMaterial2;
+
+
+    function initVariables() {
+
+        console.log("Initializing variables");
+
+        clock = new THREE.Clock();
+        frame = 0;
+        
+        gui = new dat.GUI();
+
+        RunSimulation = true;
+        AutoRotate = true;
+        CameraFollowsSphere1 = true;
+        m1RelativeToM2 = false;
+        velocities = false;
+		
+		orbitGeometry = new THREE.Geometry();
+		orbitGeometry2 = new THREE.Geometry();
+
+		orbitMaterial = new THREE.LineBasicMaterial({color: 0xff0049, linewidth: 2});
+		orbitMaterial2 = new THREE.LineBasicMaterial({color: 0x4900ff, linewidth: 2});
+
+        x = 0;
+        xstop = 3000;
+        h = 1;
+        G = 6.67384e-20;
+
+        m1 = 1e+26;
+	    m2 = 1e+25;
+        Mass1PositionX = 0.0;
+        Mass1PositionY = 0.0;
+        Mass1PositionZ = 0.0;
+        Mass2PositionX = 0.0;
+        Mass2PositionY = 3000.0;
+        Mass2PositionZ = 3000.0;
+        Mass1VelocityX = 0.0;
+        Mass1VelocityY = 5.0;
+        Mass1VelocityZ = 0.0;
+        Mass2VelocityX = 12.0;
+        Mass2VelocityY = 3.0;
+        Mass2VelocityZ = 12.0;
+
+        initializeArray();
+        calculateDistances();
+        createColorVectors();
+
+        //calculate array with positions and velocities
+        console.log("Calculating position and velocity vectors");
+        rk4(x, xstop, h, y, m1, m2, G, positionVelocityArray, nrows);
+        console.log("Position and velocity vectors calculated successfully");
+
+        ReferencePlane = true;
+
+        console.log("Variables initialized successfully");
+    }
+
+    function evaluate()
+    {
+        if (text2 != null)
+        {
+            document.body.removeChild(text2);
+            delete text2;
+            text2 = null;
+        }
+
+        frame = 0;
+        
+
+        //Check so we dont crush due to memory
+        if ( (xstop-x)/h > 3000 ) {
+            xstop = Math.ceil( 3000*h + x );
+            console.log("xstop is set to:");
+            console.log(xstop);
+            text2 = document.createElement('myText');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.width = 100;
+            text2.style.height = 100;
+            text2.style.backgroundColor = "yellow";
+            text2.innerHTML = "Too small h, xstop is set to " + xstop;
+            text2.style.top = 200 + 'px';
+            text2.style.left = 200 + 'px';
+            document.body.appendChild(text2);
+        }
+		
+
+        initializeArray();
+        calculateDistances();
+        createColorVectors();
+		clearOrbits();
+
+        //This is duplicate code
+        camera.position.x = maxDistance ;
+        camera.position.y = maxDistance ;
+        camera.position.z = maxDistance ;
+        camera.lookAt(scene.position);
+        rk4(x, xstop, h, y, m1, m2, G, positionVelocityArray, nrows);
+     	console.log("Array length: ", positionVelocityArray.length);
+	}
+
+    function initializeArray() {
+
+        console.log("Initializing array");
+
+        ncolumns = 12;
+        nrows = Math.ceil ((xstop-x)/h);
+
+        positionVelocityArray = [];
+        delete positionVelocityArray;
+        positionVelocityArray = null;
+        positionVelocityArray = new Array(nrows);
+        for ( i = 0; i < nrows; i++)
+        {
+            positionVelocityArray[i] = new Array(ncolumns);
+        }
+
+        y = [];
+        delete y;
+        y = null;
+		y = new Array();
+        y[0] = Mass1PositionX;
+        y[1] = Mass1PositionY;
+        y[2] = Mass1PositionZ;
+        y[3] = Mass2PositionX;
+        y[4] = Mass2PositionY;
+        y[5] = Mass2PositionZ;
+        y[6] = Mass1VelocityX;
+        y[7] = Mass1VelocityY;
+        y[8] = Mass1VelocityZ;
+        y[9] = Mass2VelocityX;
+        y[10] = Mass2VelocityY;
+        y[11] = Mass2VelocityZ;
+        console.log("Array initialized successfully");
+    }
+
+    function calculateDistances() {
+
+        console.log("Calculating distances");
+        distance1 = Math.sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+        distance2 = Math.sqrt(y[3]*y[3] + y[4]*y[4] + y[5]*y[5]);
+        if (distance1 > distance2)
+            maxDistance = distance1;
+        else
+            maxDistance = distance2;
+
+        factor = maxDistance / 150;
+
+        console.log("Distances calculated successfully");
+    }
+
+    function createColorVectors() {
+
+        console.log("Creating color vectors");
+
+        colors = [];
+        colors2 = [];
+        delete colors;
+        colors = null;
+        delete colors2;
+        colors2 = null;
+        colors = [];
+        colors2 = [];
+
+        for (var i = 0; i < positionVelocityArray.length - 1; i++) {
+            colors.push (new THREE.Color(0xff0049));
+            colors2.push (new THREE.Color(0x4900ff));
+        }
+        console.log("Color vectors created successfully");
+    }
+
+    function addReferencePlane() {
+
+        axes = new THREE.AxisHelper(5000);
+        scene.add(axes);
+
+        // Grid
+
+        var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ); 
+		var geometry = new THREE.Geometry();
+		var floor = -75;
+		var step = 250;
+
+        // floor - the y(height of the floor)
+        //step how close the grid will be
+        // 40 -> 5000 / 250
+        // this grid goes from -5000 to 5000
+
+        for ( var i = 0; i <= 40; i ++ ) {
+
+            geometry.vertices.push( new THREE.Vector3( - 5000, floor, i * step - 5000 ) );
+            geometry.vertices.push( new THREE.Vector3(   5000, floor, i * step - 5000 ) );
+
+            geometry.vertices.push( new THREE.Vector3( i * step - 5000, floor, -5000 ) );
+            geometry.vertices.push( new THREE.Vector3( i * step - 5000, floor,  5000 ) );
+        }
+
+        //plane = new THREE.Line( geometry, line_material, THREE.LinePieces );
+        plane = new THREE.LineSegments( geometry, line_material );
+        plane.name = "plane";
+        scene.add( plane );
+        console.log("Reference plane added");
+    }
+
+    function addSpheres() {
+        var sphereGeometry = new THREE.SphereGeometry(maxDistance / 30, 20, 20);
+        var material = new THREE.MeshPhongMaterial({color: 0xff7777});
+        var material2 = new THREE.MeshPhongMaterial({color: 0x7777ff});
+        sphere1 = new THREE.Mesh(sphereGeometry, material);
+        sphere1.name = "sphere1";
+        scene.add(sphere1);
+		sphere1.frustumCulled = false;
+        console.log("sphere1 added");
+        sphere2 = new THREE.Mesh(sphereGeometry, material2);
+        sphere2.name = "sphere2";
+        scene.add(sphere2);
+	    sphere2.frustumCulled = false;
+        console.log("sphere2 added");
+    }
+	
+	function addOrbits() {
+/*		for (var i = 0; i < positionVelocityArray.length - 1; i++)
+    {
+        orbitGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
+        orbitGeometry2.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
+    }
+    lineOrbit = new THREE.Line(orbitGeometry, orbitMaterial);
+    lineOrbit.name = "lineOrbit";
+    lineOrbit2 = new THREE.Line(orbitGeometry2, orbitMaterial2);
+    lineOrbit2.name = "lineOrbit2";
+    scene.add(lineOrbit);
+    scene.add(lineOrbit2);
+
+    lineOrbit.frustumCulled = false;
+    lineOrbit2.frustumCulled = false; */
+	
+	
+//Particle system
+
+        var particleCount = positionVelocityArray.length,
+                particles = new THREE.Geometry(),
+                pMaterial = new THREE.PointsMaterial({
+                                                             color: 0xff0049,
+                                                             size: 40
+                                                        });
+        for (var p = 0; p < particleCount; p++) {
+            var    particle = new THREE.Vector3(0, 0, 0);
+            particles.vertices.push(particle);
+        }
+
+        particleSystem = new THREE.Points(particles, pMaterial);
+        scene.add(particleSystem);
+		particleSystem.frustumCulled = false;
+
+        var particleCount2 = positionVelocityArray.length,
+                particles2 = new THREE.Geometry(),
+                pMaterial2 = new THREE.PointsMaterial({
+                                                              color: 0x4900ff,
+                                                              size: 40
+                                                          });
+
+        for (p = 0; p < particleCount; p++) {
+            var    particle2 = new THREE.Vector3(0, 0, 0);
+            particles2.vertices.push(particle2);
+        }
+
+        particleSystem2 = new THREE.Points(
+                    particles2,
+                    pMaterial2);
+        scene.add(particleSystem2);
+		particleSystem2.frustumCulled = false; 
+    }
+	
+	function clearOrbits()
+{
+  /*     for (var i = 0; i < positionVelocityArray.length - 1; i++)
+        {
+            orbitGeometry.dynamic = true;
+            orbitGeometry2.dynamic = true;
+            orbitGeometry.vertices[i].x = 0;
+            orbitGeometry.vertices[i].y = 0;
+            orbitGeometry.vertices[i].z = 0;
+            orbitGeometry2.vertices[i].x = 0;
+            orbitGeometry2.vertices[i].y = 0;
+            orbitGeometry2.vertices[i].z = 0;
+        }
+
+        orbitGeometry.verticesNeedUpdate = true;
+        orbitGeometry2.verticesNeedUpdate = true; */
+		
+
+
+    //Particle system
+   var particleCount = positionVelocityArray.length;
+    var verts = particleSystem.geometry.vertices;
+    var verts2 = particleSystem2.geometry.vertices;
+    for (var i = 0; i < particleCount; i++)
+    {
+        var vert = verts[i];
+        var vert2 = verts2[i];
+        vert.x = 0;
+        vert.y = 0;
+        vert.z = 0;
+        vert2.x = 0;
+        vert2.y = 0;
+        vert2.z = 0;
+    }
+    particleSystem.geometry.verticesNeedUpdate = true;
+    particleSystem2.geometry.verticesNeedUpdate = true; 
+}
+
+    function addLights() {
+        // add subtle ambient lighting
+        var ambiColor = "#1c1c1c";
+        var ambientLight = new THREE.AmbientLight(ambiColor);
+        scene.add(ambientLight);
+
+        var spotColor = "#8f8f8f";
+        spotLight = new THREE.SpotLight(spotColor);
+        spotLight.position.set(0, 0, 0);
+        spotLight.castShadow = true;
+        spotLight.target = sphere1;
+        scene.add(spotLight);
+        console.log("SpotLight 1 added");
+
+        spotLight2 = new THREE.SpotLight(spotColor);
+        spotLight2.position.set(0, 0, 0);
+        spotLight2.castShadow = true;
+        spotLight2.target = sphere2;
+        scene.add(spotLight2);
+        console.log("SpotLight 2 added");
+    }
+
+    function init() {
+
+        stats = initStats();
+
+        initVariables();
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 50000 );
+    	camera.target = new THREE.Vector3(0, 0, 0);
+
+        renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+        renderer.setClearColor(new THREE.Color(0x000000, 1.0));
+        renderer.setClearColor(new THREE.Color(0x000000, 0.0));
+        renderer.shadowMap.Enabled = true;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        addReferencePlane();
+        addSpheres();
+		addOrbits();
+        addLights();
+		
+	
+        //This is duplicate code
+        camera.position.x = maxDistance ;
+        camera.position.y = maxDistance ;
+        camera.position.z = maxDistance ;
+        camera.lookAt(scene.position);
+		
+        orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitControls.autoRotate = AutoRotate;
+        document.getElementById("WebGL-output").appendChild(renderer.domElement);
+
+		var parameters = 
+		{
+			m1: this.m1, 
+			Mass1PositionX: this.Mass1PositionX, 
+			Mass1PositionY: this.Mass1PositionY, 
+			Mass1PositionZ: this.Mass1PositionZ,
+			Mass1VelocityX: this.Mass1VelocityX,
+			Mass1VelocityY: this.Mass1VelocityY,
+			Mass1VelocityZ: this.Mass1VelocityZ,
+			m2: this.m2, 
+			Mass2PositionX: this.Mass2PositionX, 
+			Mass2PositionY: this.Mass2PositionY, 
+			Mass2PositionZ: this.Mass2PositionZ,
+			Mass2VelocityX: this.Mass2VelocityX,
+			Mass2VelocityY: this.Mass2VelocityY,
+			Mass2VelocityZ: this.Mass2VelocityZ,
+			FinalTime: this.xstop,
+			TimeStep: this.h,
+			velocities: this.velocities,
+			ReferencePlane: this.ReferencePlane,
+			CameraFollowsSphere1: this.CameraFollowsSphere1,
+            AutoRotate: this.AutoRotate,
+            m1RelativeToM2: this.m1RelativeToM2,
+			RunSimulation: this.RunSimulation,
+			Restart: function() {
+				var w = 500;
+				var h = 200;
+				var url = './twobody.html';
+				var title = 'Analysis';
+                evaluate();
+                frame = 0;
+				 // Fixes dual-screen position                         Most browsers      Firefox
+				var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+				var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+				var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+				var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+				var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+				var top = ((height / 2) - (h / 2)) + dualScreenTop;
+				var newWindow = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+				// Puts focus on the newWindow
+				if (window.focus) {
+					newWindow.focus();
+				}
+			},
+			Screenshot: function() {
+				window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
+			}
+		};
+		
+		// gui.add( parameters )
+		var sphere1Folder = gui.addFolder('Sphere 1 settings');
+		sphere1Folder.add( parameters, 'm1' ).name('mass').onFinishChange(function(){
+            m1 = parameters.m1;
+		});
+		var sphere1PositionFolder = sphere1Folder.addFolder('Position');
+		sphere1PositionFolder.add( parameters, 'Mass1PositionX' ).name('X').onFinishChange(function(){
+            Mass1PositionX = parameters.Mass1PositionX;
+		});
+		sphere1PositionFolder.add( parameters, 'Mass1PositionY' ).name('Y').onFinishChange(function(){
+            Mass1PositionY = parameters.Mass1PositionY;
+		});
+		sphere1PositionFolder.add( parameters, 'Mass1PositionZ' ).name('Z').onFinishChange(function(){
+            Mass1PositionZ = parameters.Mass1PositionZ;
+		});
+		
+		var sphere1VelocityFolder = sphere1Folder.addFolder('Velocity');
+		sphere1VelocityFolder.add( parameters, 'Mass1VelocityX' ).name('Vx').onFinishChange(function(){
+            Mass1VelocityX = parameters.Mass1VelocityX;
+		});
+		sphere1VelocityFolder.add( parameters, 'Mass1VelocityY' ).name('Vy').onFinishChange(function(){
+            Mass1VelocityY = parameters.Mass1VelocityY;
+		});
+		sphere1VelocityFolder.add( parameters, 'Mass1VelocityZ' ).name('Vz').onFinishChange(function(){
+            Mass1VelocityZ = parameters.Mass1VelocityZ;
+		});
+		
+		var sphere2Folder = gui.addFolder('Sphere 2 settings');
+		sphere2Folder.add( parameters, 'm2' ).name('mass').onFinishChange(function(){
+            m2 = parameters.m2;
+		});
+		var sphere2PositionFolder = sphere2Folder.addFolder('Position');
+		sphere2PositionFolder.add( parameters, 'Mass2PositionX' ).name('X').onFinishChange(function(){
+            Mass2PositionX = parameters.Mass2PositionX;
+		});
+		sphere2PositionFolder.add( parameters, 'Mass2PositionY' ).name('Y').onFinishChange(function(){
+            Mass2PositionY = parameters.Mass2PositionY;
+		});
+		sphere2PositionFolder.add( parameters, 'Mass2PositionZ' ).name('Z').onFinishChange(function(){
+            Mass2PositionZ = parameters.Mass2PositionZ;
+		});
+		
+		var sphere2VelocityFolder = sphere2Folder.addFolder('Velocity');
+		sphere2VelocityFolder.add( parameters, 'Mass2VelocityX' ).name('Vx').onFinishChange(function(){
+            Mass2VelocityX = parameters.Mass2VelocityX;
+		});
+		sphere2VelocityFolder.add( parameters, 'Mass2VelocityY' ).name('Vy').onFinishChange(function(){
+            Mass2VelocityY = parameters.Mass2VelocityY;
+		});
+		sphere2VelocityFolder.add( parameters, 'Mass2VelocityZ' ).name('Vz').onFinishChange(function(){
+            Mass2VelocityZ = parameters.Mass2VelocityZ;
+		});
+		
+		var otherFolder = gui.addFolder('Other settings');
+		otherFolder.add( parameters, 'FinalTime' ).name('Final time').onFinishChange(function(){
+            xstop = parameters.FinalTime;
+		});
+		otherFolder.add( parameters, 'TimeStep' ).name('Time step').onFinishChange(function(){
+            h = parameters.TimeStep;
+		});
+		otherFolder.add( parameters, 'velocities' ).name('Show velocities').onFinishChange(function(){
+            velocities = parameters.velocities;
+		});
+		otherFolder.add( parameters, 'ReferencePlane' ).name('Show axes').onFinishChange(function(){
+            ReferencePlane = parameters.ReferencePlane;
+		});
+		otherFolder.add( parameters, 'CameraFollowsSphere1' ).name('Camera follows sphere1').onFinishChange(function(){
+            CameraFollowsSphere1 = parameters.CameraFollowsSphere1;
+		});
+		otherFolder.add( parameters, 'AutoRotate' ).name('Auto rotate').onFinishChange(function(){
+            AutoRotate = parameters.AutoRotate;
+			orbitControls.autoRotate = AutoRotate;
+		});
+		otherFolder.add( parameters, 'm1RelativeToM2' ).name('m1 relative to m2').onFinishChange(function(){
+            m1RelativeToM2 = parameters.m1RelativeToM2;
+		});
+		otherFolder.add( parameters, 'Screenshot' ).name('Screenshot');
+		otherFolder.add( parameters, 'RunSimulation' ).name('Run simulation').onFinishChange(function(){
+            RunSimulation = parameters.RunSimulation;
+		});
+		gui.add( parameters, 'Restart' ).name('Restart');
+		
+        render();
+
+        function render()
+        {
+            stats.update();
+            if (frame < positionVelocityArray.length - 1 ) {
+                if (RunSimulation == true)
+                    frame++;
+            }
+
+            if (ReferencePlane) {
+                scene.add(plane);
+                scene.add(axes);
+            }
+            else {
+                scene.remove(plane);
+                scene.remove(axes);
+            }
+
+
+             
+                if (m1RelativeToM2) {
+                    var sphere1X = positionVelocityArray[frame][0] - positionVelocityArray[frame][3];
+                    var sphere1Y = positionVelocityArray[frame][1] - positionVelocityArray[frame][4];
+                    var sphere1Z = positionVelocityArray[frame][2] - positionVelocityArray[frame][5];
+                    var sphere2X = 0;
+                    var sphere2Y = 0;
+                    var sphere2Z = 0;
+                    var sphere1VelX = positionVelocityArray[frame][6] - positionVelocityArray[frame][9];
+                    var sphere1VelY = positionVelocityArray[frame][7] - positionVelocityArray[frame][10];
+                    var sphere1VelZ = positionVelocityArray[frame][8] - positionVelocityArray[frame][11];;
+                    var sphere2VelX = 0;
+                    var sphere2VelY = 0;
+                    var sphere2VelZ = 0;
+                }
+                else {
+                    var sphere1X = positionVelocityArray[frame][0];
+                    var sphere1Y = positionVelocityArray[frame][1];
+                    var sphere1Z = positionVelocityArray[frame][2];
+                    var sphere2X = positionVelocityArray[frame][3];
+                    var sphere2Y = positionVelocityArray[frame][4];
+                    var sphere2Z = positionVelocityArray[frame][5];
+                    var sphere1VelX = positionVelocityArray[frame][6];
+                    var sphere1VelY = positionVelocityArray[frame][7];
+                    var sphere1VelZ = positionVelocityArray[frame][8];
+                    var sphere2VelX = positionVelocityArray[frame][9];
+                    var sphere2VelY = positionVelocityArray[frame][10];
+                    var sphere2VelZ = positionVelocityArray[frame][11];
+                }   
+				
+		/*		if (frame > 0)
+        {
+            for (var i = frame - 1; i < positionVelocityArray.length - 1; i++)
+            {
+                orbitGeometry.dynamic = true;
+                orbitGeometry2.dynamic = true;
+                orbitGeometry.vertices[i].x = sphere1X;
+                orbitGeometry.vertices[i].y = sphere1Y;
+                orbitGeometry.vertices[i].z = sphere1Z;
+                orbitGeometry2.vertices[i].x = sphere2X;
+                orbitGeometry2.vertices[i].y = sphere2Y;
+                orbitGeometry2.vertices[i].z = sphere2Z;
+            }
+        }
+        orbitGeometry.verticesNeedUpdate = true;
+        orbitGeometry2.verticesNeedUpdate = true; */
+
+				//Particle system
+        var verts = particleSystem.geometry.vertices;
+        var vert = verts[frame];
+
+        if (!m1RelativeToM2)
+        {
+            vert.x = positionVelocityArray[frame][0];
+            vert.y = positionVelocityArray[frame][1];	
+        vert.z = positionVelocityArray[frame][2];
+         }
+        else
+        {
+            vert.x = 0;
+            vert.y = 0;
+            vert.z = 0;
+        }
+
+        particleSystem.geometry.verticesNeedUpdate = true;
+
+        var verts2 = particleSystem2.geometry.vertices;
+        var vert2 = verts2[frame];
+
+        if (!m1RelativeToM2)
+        {
+            vert2.x = positionVelocityArray[frame][3];
+            vert2.y = positionVelocityArray[frame][4];
+            vert2.z = positionVelocityArray[frame][5];
+        }
+        else
+        {
+            vert2.x = positionVelocityArray[frame][3] - positionVelocityArray[frame][0];
+            vert2.y = positionVelocityArray[frame][4] - positionVelocityArray[frame][1];
+            vert2.z = positionVelocityArray[frame][5] - positionVelocityArray[frame][2];
+        }
+
+        particleSystem2.geometry.verticesNeedUpdate = true;				
+				
+			
+				
+				
+				
+               
+
+                spotLight.position.set(camera.position.x, camera.position.y, camera.position.z);
+                spotLight2.position.set(camera.position.x, camera.position.y, camera.position.z);
+
+                scene.traverse(function(e) {
+                    if (e.name == "sphere1" ) {
+                        e.position.x = sphere1X;
+                        e.position.y = sphere1Y;
+                        e.position.z = sphere1Z;
+                    }
+                    if (e.name == "sphere2" ) {
+                        e.position.x = sphere2X;
+                        e.position.y = sphere2Y;
+                        e.position.z = sphere2Z;
+                    }
+                }); 
+
+            var delta = clock.getDelta();
+            orbitControls.update(delta);
+
+            if (CameraFollowsSphere1)
+                camera.lookAt( new THREE.Vector3( sphere1.position.x, sphere1.position.y, sphere1.position.z));
+            else
+                camera.lookAt(scene.position); 
+
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+        } 
+
+        function initStats() {
+
+            var stats = new Stats();
+
+            stats.setMode(0); // 0: fps, 1: ms
+
+            // Align top-left
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+
+            document.getElementById("Stats-output").appendChild( stats.domElement );
+
+            return stats; 
+        } 
+    };
+
+
+    function onResize()
+    {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+
+    // listen to the resize events
+    window.addEventListener('resize', onResize, false);
+
+</script>
+</body>
+</html>

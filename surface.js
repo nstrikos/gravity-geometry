@@ -23,6 +23,8 @@ var velGeometry, velLine, velMaterial;
 var autoRotate, relativeMotion;
 var velFactor;
 
+var Velocity, velocityGeometry;
+
 var thetaSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal thetaChanged(double value) }', Qt.application, 'ThetaSender');
 var phiSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal phiChanged(double value) }', Qt.application, 'PhiSender');
 var draggingSender = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal draggingSignal(bool value) }', Qt.application, 'DraggingSender');
@@ -48,6 +50,7 @@ function initializeGL(canvas, eventSource) {
     addLights();
     addOrbits();
     addVelocities();
+    addVelocity();
 
     renderer = new THREE.Canvas3DRenderer(
                 { canvas: canvas, antialias: true, devicePixelRatio: canvas.devicePixelRatio });
@@ -557,6 +560,34 @@ function addVelocities()
     scene.add(velLine);
 
     velLine.frustumCulled = false;
+}
+
+function addVelocity()
+{
+    var velMaterial = new THREE.LineBasicMaterial({
+        color: 0x00ffff,
+        linewidth: 5.0
+    });
+
+    velocityGeometry = new THREE.Geometry();
+    velocityGeometry.vertices.push(
+        new THREE.Vector3( 0, 300, 0 ),
+        new THREE.Vector3( 1000, 1000, 1000 )
+    );
+
+    Velocity = new THREE.Line( velocityGeometry, velMaterial );
+    scene.add( Velocity );
+}
+
+function updateVelocity(x, y, z)
+{
+    velocityGeometry.vertices[0].x = 0;
+    velocityGeometry.vertices[0].y = 300;
+    velocityGeometry.vertices[0].z = 0;
+    velocityGeometry.vertices[1].x = x;
+    velocityGeometry.vertices[1].y = y;
+    velocityGeometry.vertices[1].z = z;
+    velocityGeometry.verticesNeedUpdate = true;
 }
 
 function setRotate(value)

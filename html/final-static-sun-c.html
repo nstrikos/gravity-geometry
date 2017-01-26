@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Gravity -  Static solar system</title>
+    <script type="text/javascript" src="./libs/three.min.js"></script>
+    <script type="text/javascript" src="./libs/stats.min.js"></script>
+    <script type="text/javascript" src="./libs/dat.gui.min.js"></script>
+    <script type="text/javascript" src="./libs/OrbitControls.js"></script>
+    <script type="text/javascript" src="./mylibs/orbit.js"></script>
+    <style>
+        body{
+            /* set margin to 0 and overflow to hidden, to go fullscreen */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="Stats-output">
+</div>
+
+<!-- Div which will hold the Output -->
+<div id="WebGL-output">
+</div>
+
+<!-- Javascript code that runs our Three.js examples -->
+<script type="text/javascript">
+
+    var camera, scene, renderer, stats, orbitControls, clock;
+    var text2;
+
+    var sun, earth, clouds;
+    var directionalLight;
+    var axes, plane;
+
+    var frame;
+
+    var gui;
+
+    var RunSimulation, AutoRotate, CameraFollowsearth, velocities, ReferencePlane;
+
+    var x, xstop, h, G
+    var m1, m2;
+    var SunPositionX, SunPositionY, SunPositionZ, EarthPositionX, EarthPositionY, EarthPositionZ;
+    var SunVelocityX, SunVelocityY, SunVelocityZ, EarthVelocityX, EarthVelocityY, EarthVelocityZ;
+    var velocity, velocity2;
+
+    var velFactor;
+
+    var ncolumns, nrows;
+    var positionVelocityArray = new Array(nrows);
+    var y;
+    var distance1, distance2, maxDistance;
+    var factor;
+    var scaleFactor;
+
+    var orbitGeometry;
+    var particles;
+    var positions;
+    var colors;
+    var color;
+
+    var clock = new THREE.Clock();
+
+    function initVariables() {
+
+      console.log("Initializing variables");
+
+      gui = new dat.GUI();
+      setFirstTimeValues();
+      evaluate();
+      calculateOrbitGeometry();
+
+
+      console.log("Variables initialized successfully");
+    }
+
+    function setFirstTimeValues() {
+      RunSimulation = true;
+      AutoRotate = true;
+      CameraFollowsearth = false;
+      ReferencePlane = true;
+      frame = 0;
+      scaleFactor = 1000000;
+      x = 0;
+      xstop = 2 * 31558118.4 / scaleFactor; //Earth period
+      h = 30000 /  scaleFactor;
+      G = 6.67384e-20;
+
+      m1 = 1.988e+30 /  scaleFactor;
+      m2 = 5.9726e+24 / scaleFactor;
+      SunPositionX = 0;
+      SunPositionY = 0;
+      SunPositionZ = 0;
+      EarthPositionX = 149.6e+6 / scaleFactor;
+      EarthPositionY = 0;
+      EarthPositionZ = 0;
+      SunVelocityX = 0;
+      SunVelocityY = 0;
+      SunVelocityZ = 0;
+      EarthVelocityX = 0;
+      EarthVelocityY = 0;
+      EarthVelocityZ = -29.78;
+    }
+
+
+    function evaluate()    {
+
+      if (text2 != null)
+      {
+        document.body.removeChild(text2);
+        delete text2;
+      text2 = null;
+      }
+      if (velocity != null)
+      {
+        scene.remove(velocity);
+        delete velocity;
+        velocity = null;
+      }
+      if (velocity2 != null)
+      {
+        scene.remove(velocity2);
+        delete velocity2;
+        velocity2 = null;
+      }
+
+      frame = 0;
+
+      //Check so we dont crush due to memory
+       if ( (xstop-x)/h > 3000 ) {
+        xstop = Math.ceil( 3000*h + x );
+        console.log("xstop is set to:");
+        console.log(xstop);
+        text2 = document.createElement('myText');
+        text2.style.position = 'absolute';
+        //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+        text2.style.width = 100;
+        text2.style.height = 100;
+        text2.style.backgroundColor = "yellow";
+        text2.innerHTML = "Too small h, xstop is set to " + xstop;
+        text2.style.top = 200 + 'px';
+        text2.style.left = 200 + 'px';
+        document.body.appendChild(text2);
+      }
+
+      initializeArray();
+      calculateDistances();
+      createColorVectors();
+      rk4(x, xstop, h, y, m1, m2, G, positionVelocityArray, nrows);
+    }
+
+    function calculateOrbitGeometry() {
+
+      orbitGeometry = new THREE.BufferGeometry();
+      particles = positionVelocityArray.length;
+      console.log("Particles used:");
+      console.log(particles);
+
+      positions = new Float32Array( particles * 3 );
+      colors = new Float32Array( particles * 3 );
+      color = new THREE.Color();
+
+		  var n = 1000, n2 = n / 2; // particles spread in the cube
+		  for ( var i = 0; i < particles; i += 3 ) {
+    	  var x_comp = positionVelocityArray[i][3] - positionVelocityArray[i][0];
+			  var y_comp = positionVelocityArray[i][4] - positionVelocityArray[i][1];
+			  var z_comp = positionVelocityArray[i][5] - positionVelocityArray[i][2];
+        positions[ i ]     = x_comp;
+        positions[ i + 1 ] = y_comp;
+        positions[ i + 2 ] = z_comp;
+
+        // colors
+			  var vx = ( x_comp / n ) + 0.5;
+			  var vy = ( y_comp / n ) + 0.5;
+			  var vz = ( z_comp / n ) + 0.5;
+    		color.setRGB( vx, vy, vz );
+		//	  colors[ i ]     = color.r;
+		//	  colors[ i + 1 ] = color.r;
+		//	  colors[ i + 2 ] = color.b;
+		
+			  colors[ i ]     = 0;
+			  colors[ i + 1 ] = 255;
+			  colors[ i + 2 ] = 0;
+      }
+
+      orbitGeometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+		  orbitGeometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
+      orbitGeometry.attributes.position.needsUpdate = true;
+      orbitGeometry.attributes.color.needsUpdate = true;
+    	orbitGeometry.computeBoundingSphere();
+
+		  var material = new THREE.LineBasicMaterial( { size: 30, vertexColors: THREE.VertexColors } );
+
+		  particleSystem = new THREE.Line( orbitGeometry, material );
+    }
+
+    function initializeArray() {
+
+        console.log("Initializing array");
+
+        ncolumns = 12;
+        nrows = Math.ceil ((xstop-x)/h);
+        console.log(xstop, x, h, nrows);
+
+        positionVelocityArray = [];
+        delete positionVelocityArray;
+        positionVelocityArray = null;
+        positionVelocityArray = new Array(nrows);
+        for ( i = 0; i < nrows; i++)
+        {
+            positionVelocityArray[i] = new Array(ncolumns);
+        }
+
+        y = new Array();
+        y[0] = SunPositionX;
+        y[1] = SunPositionY;
+        y[2] = SunPositionZ;
+        y[3] = EarthPositionX;
+        y[4] = EarthPositionY;
+        y[5] = EarthPositionZ;
+        y[6] = SunVelocityX;
+        y[7] = SunVelocityY;
+        y[8] = SunVelocityZ;
+        y[9] = EarthVelocityX;
+        y[10] = EarthVelocityY;
+        y[11] = EarthVelocityZ;
+        console.log("Array initialized successfully");
+    }
+
+    function calculateDistances() {
+
+        console.log("Calculating distances");
+        distance1 = Math.sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+        distance2 = Math.sqrt(y[3]*y[3] + y[4]*y[4] + y[5]*y[5]);
+        if (distance1 > distance2)
+            maxDistance = distance1;
+        else
+            maxDistance = distance2;
+
+        factor = maxDistance / 150;
+
+        console.log("Distances calculated successfully");
+    }
+
+    function createColorVectors() {
+
+      console.log("Creating color vectors");
+      orbitColors = [];
+      delete orbitColors;
+      orbitColors = null;
+      orbitColors = [];
+      for (var i = 0; i < positionVelocityArray.length ; i++) {
+        orbitColors.push (new THREE.Color(0x4900ff));
+      }
+      console.log("Color vectors created successfully");
+    }
+
+    function addReferencePlane() {
+
+        axes = new THREE.AxisHelper(5000);
+        scene.add(axes);
+
+        // Grid
+
+        var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ), geometry = new THREE.Geometry(), floor = -75, step = 250;
+
+        // floor - the y(height of the floor)
+        //step how close the grid will be
+        // 40 -> 5000 / 250
+        // this grid goes from -5000 to 5000
+
+        for ( var i = 0; i <= 40; i ++ ) {
+
+            geometry.vertices.push( new THREE.Vector3( - 5000, floor, i * step - 5000 ) );
+            geometry.vertices.push( new THREE.Vector3(   5000, floor, i * step - 5000 ) );
+
+            geometry.vertices.push( new THREE.Vector3( i * step - 5000, floor, -5000 ) );
+            geometry.vertices.push( new THREE.Vector3( i * step - 5000, floor,  5000 ) );
+        }
+
+        //plane = new THREE.Line( geometry, line_material, THREE.LinePieces );
+        plane = new THREE.LineSegments( geometry, line_material );
+        plane.name = "plane";
+        scene.add( plane );
+        console.log("Reference plane added");
+    }
+
+    function addSpheres() {
+      // create sun
+      var sunGeometry = new THREE.SphereGeometry(30000000 / scaleFactor, 30, 30);
+      var sunTexture = THREE.ImageUtils.loadTexture("../images/sunmap.jpg");
+      var sunMaterial = new THREE.MeshBasicMaterial();
+      sunMaterial.map = sunTexture;
+      sun = new THREE.Mesh(sunGeometry, sunMaterial);
+      sun.name = 'sun';
+      scene.add(sun);
+
+      // create earth
+      var earthGeometry = new THREE.SphereGeometry(18000000 / scaleFactor, 30, 20);
+      var earthTexture = THREE.ImageUtils.loadTexture("../images/earthmap4k.jpg");
+      var bumpMap = THREE.ImageUtils.loadTexture("../images/earthbump4k.jpg");
+      var specularMap = THREE.ImageUtils.loadTexture("../images/earthspec4k.jpg");
+      var normalMap = THREE.ImageUtils.loadTexture("../images/earth_normalmap_flat4k.jpg");
+
+      var earthMaterial = new THREE.MeshPhongMaterial();
+      earthMaterial.map = earthTexture;
+
+      // specular defines the reflection of the surface
+      earthMaterial.specularMap = specularMap;
+      earthMaterial.specular = new THREE.Color(0x000000);
+
+      // normalmap
+      earthMaterial.normalMap = normalMap;
+      earthMaterial.normalScale = new THREE.Vector2(1.5, 1.7);
+
+      earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      earth.name = 'earth';
+      scene.add(earth);
+
+      //create clouds
+      var cloudGeometry = new THREE.SphereGeometry(earthGeometry.parameters.radius * 1.01, earthGeometry.parameters.widthSegments, earthGeometry.parameters.heightSegments);
+      var cloudTexture = THREE.ImageUtils.loadTexture("../images/fair_clouds_4k.png");
+      var cloudMaterial = new THREE.MeshPhongMaterial();
+      cloudMaterial.map = cloudTexture;
+      cloudMaterial.transparent = true;
+      clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+      clouds.name = 'clouds';
+      scene.add(clouds);
+
+
+      var galaxyGeometry = new THREE.SphereGeometry(500000, 30, 30);
+      var galaxyTexture = THREE.ImageUtils.loadTexture("../images/galaxy_starfield.png");
+      var galaxyMaterial = new THREE.MeshBasicMaterial({side	: THREE.BackSide});
+      galaxyMaterial.map = galaxyTexture;
+      var galaxySphere = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
+      scene.add(galaxySphere);
+    }
+
+    function addLights() {
+      directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position = new THREE.Vector3(0, 0, 0);
+      directionalLight.name = 'directionalLight';
+      scene.add(directionalLight);
+      directionalLight.target = earth;
+
+      var ambientLight = new THREE.AmbientLight(0x111111);
+      scene.add(ambientLight);
+    }
+
+    function init() {
+
+        stats = initStats();
+
+        initVariables();
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 5000000 );
+    	  camera.target = new THREE.Vector3(0, 0, 0);
+
+        renderer = new THREE.WebGLRenderer( { preserveDrawingBuffer: true } );
+        renderer.setClearColor(new THREE.Color(0x000000, 1.0));
+        renderer.shadowMapEnabled = true;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        addReferencePlane();
+        addSpheres();
+        addLights();
+
+
+        //particleSystem = new THREE.Points( geometry, material );
+	scene.add( particleSystem );
+
+        //This is duplicate code
+        camera.position.x = maxDistance ;
+        camera.position.y = maxDistance ;
+        camera.position.z = maxDistance ;
+        camera.lookAt(scene.position);
+
+
+
+        orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitControls.autoRotate = AutoRotate;
+        document.getElementById("WebGL-output").appendChild(renderer.domElement);
+
+        var controls = new function() {
+            this.CameraFollowsearth = CameraFollowsearth;
+            this.RunSimulation = RunSimulation;
+            this.AutoRotate = AutoRotate;
+            this.ReferencePlane = ReferencePlane;
+            this.Restart = function() {
+                //xstop = this.FinalTime; //This is necessary because xstop value may have been changed while checking
+                evaluate();
+                frame = 0;
+            };
+            this.Screenshot = function() {
+                {
+                    window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
+                }
+            };
+        };
+        gui.add(controls, 'ReferencePlane').onChange(function (e) {ReferencePlane = e;});
+        gui.add(controls, 'CameraFollowsearth').onChange(function (e) {CameraFollowsearth = e;});
+        gui.add(controls, 'AutoRotate').onChange(function (e) {AutoRotate = e;
+                                                               orbitControls.autoRotate = AutoRotate;
+                                                               linePoints = 1000;});
+        gui.add(controls, 'RunSimulation').onChange(function (e) { RunSimulation = e;
+                                                                   linePoints = 100;});
+        gui.add(controls, 'Restart');
+        gui.add(controls, 'Screenshot');
+
+        render();
+
+        function render()
+        {
+          stats.update();
+          if (frame < particles - 1) {
+            if (RunSimulation === true)
+            {
+              frame++;
+              var sunX = 0;
+              var sunY = 0;
+              var sunZ = 0;
+              var earthX = positionVelocityArray[frame][3] - positionVelocityArray[frame][0];
+              var earthY = positionVelocityArray[frame][4] - positionVelocityArray[frame][1];
+              var earthZ = positionVelocityArray[frame][5] - positionVelocityArray[frame][2];
+              var sunVelX = 0;
+              var sunVelY = 0;
+              var sunVelZ = 0;
+              var earthVelX = positionVelocityArray[frame][9] - positionVelocityArray[frame][6];
+              var earthVelY = positionVelocityArray[frame][10] - positionVelocityArray[frame][7];
+              var earthVelZ = positionVelocityArray[frame][11] - positionVelocityArray[frame][8];
+
+
+       		    var n = 1000, n2 = n / 2; // particles spread in the cube
+		        for ( var i = 0; i < positions.length; i += 3 ) {
+                if ( i < frame)
+                {
+    			        var x = positionVelocityArray[i][3] - positionVelocityArray[i][0];
+			            var y = positionVelocityArray[i][4] - positionVelocityArray[i][1];
+			            var z = positionVelocityArray[i][5] - positionVelocityArray[i][2];
+                  positions[ i ]     = x;
+                  positions[ i + 1 ] = y;
+                  positions[ i + 2 ] = z;
+                }
+                else
+                {
+                  var x = positionVelocityArray[frame][3] - positionVelocityArray[frame][0];
+			            var y = positionVelocityArray[frame][4] - positionVelocityArray[frame][1];
+			            var z = positionVelocityArray[frame][5] - positionVelocityArray[frame][2];
+                  positions[ i ]     = x;
+                  positions[ i + 1 ] = y;
+                  positions[ i + 2 ] = z;
+                } 
+                
+
+
+                // colors
+			          var vx = ( x / n ) + 0.5;
+			          var vy = ( y / n ) + 0.5;
+			          var vz = ( z / n ) + 0.5;
+    			      color.setRGB( vx, vy, vz );
+			          colors[ i ]     = color.r;
+			          colors[ i + 1 ] = color.g;
+			          colors[ i + 2 ] = color.b;
+              } 
+
+             
+              orbitGeometry.attributes.position.needsUpdate = true;
+              orbitGeometry.attributes.color.needsUpdate = true; 
+
+    		      orbitGeometry.computeBoundingSphere();
+
+              scene.traverse(function(e) {
+                if (e.name == "sun" ) {
+                  e.position.x = sunX;
+                  e.position.y = sunY;
+                  e.position.z = sunZ;
+                }
+                if (e.name == "earth" ) {
+                  e.position.x = earthX;
+                  e.position.y = earthY;
+                  e.position.z = earthZ;
+                  if (RunSimulation) {
+                    earth.rotation.y +=  0.02;
+                  }
+                }
+                if (e.name == "clouds" ) {
+                  e.position.x = earthX;
+                  e.position.y = earthY;
+                  e.position.z = earthZ;
+                  if (RunSimulation) {
+                    clouds.rotation.y += 0.0205;
+                  }
+                }
+              });
+            }
+          }
+
+          if (ReferencePlane) {
+            scene.add(plane);
+            scene.add(axes);
+          }
+          else {
+            scene.remove(plane);
+            scene.remove(axes);
+          }
+
+
+
+          var delta = clock.getDelta();
+          orbitControls.update(delta);
+
+          if (CameraFollowsearth)
+            camera.lookAt( new THREE.Vector3( earth.position.x, earth.position.y, earth.position.z));
+          else
+            camera.lookAt(scene.position);
+
+          requestAnimationFrame(render);
+          renderer.render(scene, camera);
+        }
+
+        function initStats() {
+
+            var stats = new Stats();
+
+            stats.setMode(0); // 0: fps, 1: ms
+
+            // Align top-left
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+
+            document.getElementById("Stats-output").appendChild( stats.domElement );
+
+            return stats;
+        }
+    };
+
+
+    function onResize()    {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+
+    // listen to the resize events
+    window.addEventListener('resize', onResize, false);
+
+</script>
+</body>
+</html>

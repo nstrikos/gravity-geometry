@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>content/AndroidDelegate.qml</file>
-        <file>content/conics.qml</file>
         <file>content/conicsInfo.qml</file>
         <file>gravity.js</file>
         <file>images/navigation_next_item.png</file>
@@ -10,7 +9,6 @@
         <file>images/toolbar.png</file>
         <file alias="three.js">three.js</file>
         <file>content/ControlEventSource.qml</file>
-        <file>content/twobody.qml</file>
         <file>twobody.js</file>
         <file>orbit.js</file>
         <file>images/earthmap1k.jpg</file>
@@ -32,5 +30,13 @@
         <file>content/surface.qml</file>
         <file>surface.js</file>
         <file>images/ground.jpg</file>
+        <file>content/Conics.qml</file>
+        <file>content/Twobody.qml</file>
+        <file>content/ConicsInfo.qml</file>
+        <file>content/Curved-space.qml</file>
+        <file>content/Realsolarsystem.qml</file>
+        <file>content/Slowsolarsystem.qml</file>
+        <file>content/Solarsystem.qml</file>
+        <file>content/Surface.qml</file>
     </qresource>
 </RCC>

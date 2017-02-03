@@ -446,7 +446,7 @@
             m1RelativeToM2: this.m1RelativeToM2,
 			RunSimulation: this.RunSimulation,
 			Restart: function() {
-                evaluate();
+                //evaluate();
                 frame = 0;
             },
 			Screenshot: function() {
@@ -529,6 +529,7 @@
 		});
 		otherFolder.add( parameters, 'm1RelativeToM2' ).name('m1 relative to m2').onFinishChange(function(){
             m1RelativeToM2 = parameters.m1RelativeToM2;
+            frame = 0;
 		});
 		otherFolder.add( parameters, 'Screenshot' ).name('Screenshot');
 		otherFolder.add( parameters, 'RunSimulation' ).name('Run simulation').onFinishChange(function(){

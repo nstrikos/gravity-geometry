@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>content/AndroidDelegate.qml</file>
-        <file>content/conicsInfo.qml</file>
         <file>gravity.js</file>
         <file>images/navigation_next_item.png</file>
         <file>images/navigation_previous_item.png</file>
@@ -14,29 +13,24 @@
         <file>images/earthmap1k.jpg</file>
         <file>images/sunmap.jpg</file>
         <file>images/galaxy_starfield.png</file>
-        <file>content/solarsystem.qml</file>
         <file>solarsystem.js</file>
         <file>slowsolarsystem.js</file>
-        <file>content/slowsolarsystem.qml</file>
         <file>images/earthbump1k.jpg</file>
         <file>images/earthcloudmapcolortrans.png</file>
         <file>images/earthspec1k.jpg</file>
         <file>realsolarsystem.js</file>
-        <file>content/realsolarsystem.qml</file>
         <file>fonts/LiberationSans-Regular.ttf</file>
         <file>curved-space.js</file>
-        <file>content/curved-space.qml</file>
         <file>images/square.png</file>
-        <file>content/surface.qml</file>
         <file>surface.js</file>
         <file>images/ground.jpg</file>
-        <file>content/Conics.qml</file>
-        <file>content/Twobody.qml</file>
-        <file>content/ConicsInfo.qml</file>
         <file>content/Curved-space.qml</file>
         <file>content/Realsolarsystem.qml</file>
         <file>content/Slowsolarsystem.qml</file>
         <file>content/Solarsystem.qml</file>
         <file>content/Surface.qml</file>
+        <file>content/Conics.qml</file>
+        <file>content/Twobody.qml</file>
+        <file>content/ConicsInfo.qml</file>
     </qresource>
 </RCC>

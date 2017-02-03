@@ -4,9 +4,9 @@
 
 <head>
     <title>Gravity - TwoBody problem in 3 Dimensions</title>
-    <script type="text/javascript" src="./libs/three.js"></script>
-    <script type="text/javascript" src="./libs/stats.js"></script>
-    <script type="text/javascript" src="./libs/dat.gui.js"></script>
+    <script type="text/javascript" src="./libs/three.min.js"></script>
+    <script type="text/javascript" src="./libs/stats.min.js"></script>
+    <script type="text/javascript" src="./libs/dat.gui.min.js"></script>
     <script type="text/javascript" src="./libs/OrbitControls.js"></script>
     <script type="text/javascript" src="./mylibs/orbit.js"></script>
     <style>
@@ -61,6 +61,12 @@
     var y;
     var distance1, distance2, maxDistance;
     var factor;
+    var sphereRadius;
+    var depth;
+
+    function planeFunction(x, z) {
+            return -depth * Math.exp( -(x*x + z*z) / 4000000 );
+    }
 
 
 
@@ -92,30 +98,33 @@
         gui = new dat.GUI();
 
         RunSimulation = true;
-        AutoRotate = true;
-        CameraFollowsSphere1 = true;
-        m1RelativeToM2 = false;
+        AutoRotate = false;
+        CameraFollowsSphere1 = false;
+        m1RelativeToM2 = true;
         velocities = false;
 
+        depth = 2000;
+        sphereRadius = 250;
+
         x = 0;
-        xstop = 3000;
+        xstop = 540;
         h = 1;
         G = 6.67384e-20;
 
-        m1 = 1e+26;
-	    m2 = 1e+25;
-        Mass1PositionX = 0;
+        m1 = 1e+25;
+	m2 = 1e+25;
+        Mass1PositionX = 5000;
         Mass1PositionY = 0;
-        Mass1PositionZ = 0;
+        Mass1PositionZ = 1000;
         Mass2PositionX = 0;
-        Mass2PositionY = -3000;
-        Mass2PositionZ = -3000;
-        Mass1VelocityX = 0;
-        Mass1VelocityY = 5;
+        Mass2PositionY = 0;
+        Mass2PositionZ = 0;
+        Mass1VelocityX = -60;
+        Mass1VelocityY = 0;
         Mass1VelocityZ = 0;
-        Mass2VelocityX = 12;
-        Mass2VelocityY = -3;
-        Mass2VelocityZ = 12;
+        Mass2VelocityX = 0;
+        Mass2VelocityY = 0;
+        Mass2VelocityZ = 0;
 
         initializeArray();
         calculateDistances();
@@ -256,34 +265,100 @@
     function addReferencePlane() {
 
         axes = new THREE.AxisHelper(5000);
+        axes.position.set(0, -depth + 1000, 0);
         scene.add(axes);
 
-        // Grid
 
-        var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ), geometry = new THREE.Geometry(), floor = -75, step = 250;
+    }
 
-        // floor - the y(height of the floor)
-        //step how close the grid will be
-        // 40 -> 5000 / 250
-        // this grid goes from -5000 to 5000
+    function addGraph()    {
+        var xMax = 6000.0;
+        var xMin = -6000.0;
+        var yMax = 6000.0;
+        var yMin = -6000.0;
+        var segments = 100;
+        var graphMesh;
+        var wireMaterial;
+	    var xRange = xMax - xMin;
+	    var yRange = yMax - yMin;
+	    //zFunc = Parser.parse(zFuncText).toJSFunction( ['x','y'] );
+	    meshFunction = function(x, y)
+	    {
+    		x = xRange * x + xMin;
+    		y = yRange * y + yMin;
+    		//var z = zFunc(x,y); //= Math.cos(x) * Math.sqrt(y);
+	    	var z = planeFunction(x, y);
+		    if ( isNaN(z) )
+			    return new THREE.Vector3(0,0,0); // TODO: better fix
+		    else
+			    return new THREE.Vector3(x, y, z);
+	    };
 
-        for ( var i = 0; i <= 40; i ++ ) {
+	    // true => sensible image tile repeat...
+	    graphGeometry = new THREE.ParametricGeometry( meshFunction, segments, segments, true );
 
-            geometry.vertices.push( new THREE.Vector3( - 5000, floor, i * step - 5000 ) );
-            geometry.vertices.push( new THREE.Vector3(   5000, floor, i * step - 5000 ) );
+	    ///////////////////////////////////////////////
+	    // calculate vertex colors based on Z values //
+	    ///////////////////////////////////////////////
+	    graphGeometry.computeBoundingBox();
+	    zMin = graphGeometry.boundingBox.min.z;
+	    zMax = graphGeometry.boundingBox.max.z;
+	    zRange = zMax - zMin;
+	    var color, point, face, numberOfSides, vertexIndex;
+	    // faces are indexed using characters
+	    var faceIndices = [ 'a', 'b', 'c', 'd' ];
+	    // first, assign colors to vertices as desired
+	    for ( var i = 0; i < graphGeometry.vertices.length; i++ )
+	    {
+    		point = graphGeometry.vertices[ i ];
+	    	color = new THREE.Color( 0x0000ff );
+		    color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
+		    graphGeometry.colors[i] = color; // use this array for convenience
+	    }
+	    // copy the colors as necessary to the face's vertexColors array.
+	    for ( var i = 0; i < graphGeometry.faces.length; i++ )
+	    {
+		    face = graphGeometry.faces[ i ];
+		    numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
+		    for( var j = 0; j < numberOfSides; j++ )
+		    {
+			    vertexIndex = face[ faceIndices[ j ] ];
+			    //face.vertexColors[ j ] = graphGeometry.colors[ vertexIndex ];
+			    face.vertexColors[ j ] = new THREE.Color( 0xCFCFCF);
+		    }
+	    }
+	    ///////////////////////
+	    // end vertex colors //
+	    ///////////////////////
 
-            geometry.vertices.push( new THREE.Vector3( i * step - 5000, floor, -5000 ) );
-            geometry.vertices.push( new THREE.Vector3( i * step - 5000, floor,  5000 ) );
-        }
+	    // material choices: vertexColorMaterial, wireMaterial , normMaterial , shadeMaterial
 
-        plane = new THREE.Line( geometry, line_material, THREE.LinePieces );
-        plane.name = "plane";
-        scene.add( plane );
-        console.log("Reference plane added");
+	    if (graphMesh)
+	    {
+		    scene.remove( graphMesh );
+		    // renderer.deallocateObject( graphMesh );
+	    }
+
+        // "wireframe texture"
+	    var wireTexture = new THREE.ImageUtils.loadTexture( 'images/square.png' );
+	    wireTexture.wrapS = wireTexture.wrapT = THREE.RepeatWrapping;
+	    wireTexture.repeat.set( 40, 40 );
+	    wireMaterial = new THREE.MeshBasicMaterial( { map: wireTexture, vertexColors: THREE.VertexColors, side:THREE.DoubleSide } );
+	    wireMaterial = new THREE.MeshPhongMaterial( { map: wireTexture, vertexColors: THREE.VertexColors, side:THREE.DoubleSide } );
+
+	    wireMaterial.map.repeat.set( segments, segments );
+
+	    var material = new THREE.MeshPhongMaterial( { color: 0x880088, side:THREE.DoubleSide } );
+
+	    graphMesh = new THREE.Mesh( graphGeometry, wireMaterial );
+	    //graphMesh = new THREE.Mesh( graphGeometry, material );
+	    graphMesh.doubleSided = true;
+	    scene.add(graphMesh);
+        graphMesh.rotation.x -= Math.PI / 2;
     }
 
     function addSpheres() {
-        var sphereGeometry = new THREE.SphereGeometry(maxDistance / 30, 20, 20);
+        var sphereGeometry = new THREE.SphereGeometry(sphereRadius, 20, 20);
         var material = new THREE.MeshPhongMaterial({color: 0xff7777});
         var material2 = new THREE.MeshPhongMaterial({color: 0x7777ff});
         sphere1 = new THREE.Mesh(sphereGeometry, material);
@@ -314,7 +389,7 @@
         spotLight2.position.set(0, 0, 0);
         spotLight2.castShadow = true;
         spotLight2.target = sphere2;
-        scene.add(spotLight2);
+        //scene.add(spotLight2);
         console.log("SpotLight 2 added");
     }
 
@@ -336,6 +411,7 @@
         addReferencePlane();
         addSpheres();
         addLights();
+        addGraph();
 
         //This is duplicate code
         camera.position.x = maxDistance ;
@@ -371,7 +447,7 @@
             this.AutoRotate = AutoRotate;
             this.m1RelativeToM2 = m1RelativeToM2;
             this.velocities = velocities;
-            this.ReferencePlane = ReferencePlane;
+            //this.ReferencePlane = ReferencePlane;
             this.Restart = function() {
                 xstop = this.FinalTime; //This is necessary because xstop value may have been changed while checking
                 evaluate();
@@ -401,7 +477,7 @@
         gui.add(controls, 'Mass2VelocityY').onChange(function (e) { Mass2VelocityY = e;});
         gui.add(controls, 'Mass2VelocityZ').onChange(function (e) { Mass2VelocityZ = e;});
         gui.add(controls, 'velocities').onChange(function (e) {velocities = e;});
-        gui.add(controls, 'ReferencePlane').onChange(function (e) {ReferencePlane = e;});
+        //gui.add(controls, 'ReferencePlane').onChange(function (e) {ReferencePlane = e;});
         gui.add(controls, 'CameraFollowsSphere1').onChange(function (e) {CameraFollowsSphere1 = e;});
         gui.add(controls, 'AutoRotate').onChange(function (e) {AutoRotate = e;  orbitControls.autoRotate = AutoRotate; });
         gui.add(controls, 'm1RelativeToM2').onChange(function (e) {m1RelativeToM2 = e;});
@@ -417,17 +493,6 @@
                 if (RunSimulation == true)
                     frame++;
             }
-
-            if (ReferencePlane) {
-                scene.add(plane);
-                scene.add(axes);
-            }
-            else {
-                scene.remove(plane);
-                scene.remove(axes);
-            }
-
-
                 //free memory
                 scene.remove(line);
                 delete line;
@@ -464,8 +529,9 @@
 
                 if (m1RelativeToM2) {
                     var sphere1X = positionVelocityArray[frame][0] - positionVelocityArray[frame][3];
-                    var sphere1Y = positionVelocityArray[frame][1] - positionVelocityArray[frame][4];
+                    //var sphere1Y = positionVelocityArray[frame][1] - positionVelocityArray[frame][4];
                     var sphere1Z = positionVelocityArray[frame][2] - positionVelocityArray[frame][5];
+                    var sphere1Y = planeFunction(sphere1X, sphere1Z);
                     var sphere2X = 0;
                     var sphere2Y = 0;
                     var sphere2Z = 0;
@@ -494,7 +560,10 @@
                 for (i=0; i < frame; i++)
                 {
                     if (m1RelativeToM2) {
-                        geometry.vertices.push(new THREE.Vector3(positionVelocityArray[i][0] - positionVelocityArray[i][3], positionVelocityArray[i][1] - positionVelocityArray[i][4], positionVelocityArray[i][2] - positionVelocityArray[i][5]));
+                        var x = positionVelocityArray[i][0] - positionVelocityArray[i][3];
+                        var z = positionVelocityArray[i][2] - positionVelocityArray[i][5];
+                        var y = planeFunction(x, z) + 15;
+                        geometry.vertices.push(new THREE.Vector3(x, y, z));
                         geometry2.vertices.push(new THREE.Vector3(0, 0, 0));
                     }
                     else {
@@ -530,15 +599,21 @@
                 scene.traverse(function(e) {
                     if (e.name == "sphere1" ) {
                         e.position.x = sphere1X;
-                        e.position.y = sphere1Y;
+                        e.position.y = sphere1Y + 2 * sphereRadius;
                         e.position.z = sphere1Z;
                     }
                     if (e.name == "sphere2" ) {
                         e.position.x = sphere2X;
-                        e.position.y = sphere2Y;
+                        e.position.y = -depth + sphereRadius;
                         e.position.z = sphere2Z;
                     }
                 });
+
+                var x = sphere1.position.x;
+  	            var z = sphere1.position.z;
+                //var y= -2000 * Math.exp( -(x*x + z*z) / 2000000 );
+                var y = planeFunction(x, z);
+                sphere1.position.set(x, y + sphereRadius, z);
 
             var delta = clock.getDelta();
             orbitControls.update(delta);

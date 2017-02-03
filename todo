@@ -1,3 +1,12 @@
+-> check every object for memory leak
+-> check what happens on restart button
+-> check what happens when positionvelocityarray length changes
+-> velocities
+-> too small h -> show as an alert
+-> Δες το τετραδιο για σημειώσεις πάνω στο gravity-geometry
+-> check relative mode which sphere is m1 which is m2
+-> swipe area for zooming
+
 Packages: to do
 -----------------
 gravity-geometry in browser 
@@ -14,6 +23,7 @@ browser code
 change reference plane
 check distance at start
 hide orbits
+forces and arrows
 
 
 kepler laws

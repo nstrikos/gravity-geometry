@@ -46,8 +46,6 @@
     var Mass1PositionX, Mass1PositionY, Mass1PositionZ, Mass2PositionX, Mass2PositionY, Mass2PositionZ;
     var Mass1VelocityX, Mass1VelocityY, Mass1VelocityZ, Mass2VelocityX, Mass2VelocityY, Mass2VelocityZ;
 
-    var velFactor;
-
     var ncolumns, nrows;
     var positionVelocityArray = new Array(nrows);
     var y;
@@ -56,7 +54,8 @@
 	var particleSystem, particleSystem2, particleCount;
 	var orbitGeometry, lineOrbit, orbitMaterial;
 	var orbitGeometry2, lineOrbit2, orbitMaterial2;
-
+	var velGeometry, velGeometry2, velLine, velLine2, velMaterial;
+	var velFactor;
 
     function initVariables() {
 
@@ -78,6 +77,10 @@
 
 		orbitMaterial = new THREE.LineBasicMaterial({color: 0xff0049, linewidth: 2});
 		orbitMaterial2 = new THREE.LineBasicMaterial({color: 0x4900ff, linewidth: 2});
+		
+		velGeometry = new THREE.Geometry();
+		velGeometry2 = new THREE.Geometry();
+		velMaterial = new THREE.LineBasicMaterial({color: 0x00ffff, linewidth: 2});
 
         x = 0;
         xstop = 3000;
@@ -98,6 +101,9 @@
         Mass2VelocityX = 12.0;
         Mass2VelocityY = 3.0;
         Mass2VelocityZ = 12.0;
+		
+		    velFactor = 80;
+
 
         initializeArray();
         calculateDistances();
@@ -149,10 +155,10 @@
 		clearOrbits();
 
         //This is duplicate code
-        camera.position.x = maxDistance ;
-        camera.position.y = maxDistance ;
-        camera.position.z = maxDistance ;
-        camera.lookAt(scene.position);
+        //camera.position.x = maxDistance ;
+        //camera.position.y = maxDistance ;
+        //camera.position.z = maxDistance ;
+        //camera.lookAt(scene.position);
         rk4(x, xstop, h, y, m1, m2, G, positionVelocityArray, nrows);
      	console.log("Array length: ", positionVelocityArray.length);
 	}
@@ -367,6 +373,21 @@
     particleSystem2.geometry.verticesNeedUpdate = true; */
 }
 
+function addVelocities()
+{
+    velGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
+    velGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
+    velLine =  new THREE.Line(velGeometry, velMaterial);
+    scene.add(velLine);
+    velGeometry2.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
+    velGeometry2.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
+    velLine2 =  new THREE.Line(velGeometry2, velMaterial);
+    scene.add(velLine2);
+
+    velLine.frustumCulled = false;
+    velLine2.frustumCulled = false;
+}
+
     function addLights() {
         // add subtle ambient lighting
         var ambiColor = "#1c1c1c";
@@ -408,6 +429,7 @@
         addReferencePlane();
         addSpheres();
 		addOrbits();
+		addVelocities();
         addLights();
 		
 	
@@ -446,7 +468,7 @@
             m1RelativeToM2: this.m1RelativeToM2,
 			RunSimulation: this.RunSimulation,
 			Restart: function() {
-                //evaluate();
+                evaluate();
                 frame = 0;
             },
 			Screenshot: function() {
@@ -603,6 +625,39 @@
         }
         orbitGeometry.verticesNeedUpdate = true;
         orbitGeometry2.verticesNeedUpdate = true;
+		
+		if (velocities) {
+			velGeometry.vertices[0].x = sphere1X;
+			velGeometry.vertices[0].y = sphere1Y;
+			velGeometry.vertices[0].z = sphere1Z;
+			velGeometry.vertices[1].x = sphere1X + sphere1VelX * velFactor;
+			velGeometry.vertices[1].y = sphere1Y + sphere1VelY * velFactor;
+			velGeometry.vertices[1].z = sphere1Z + sphere1VelZ * velFactor;
+			velGeometry.verticesNeedUpdate = true;
+			velGeometry2.vertices[0].x = sphere2X;
+			velGeometry2.vertices[0].y = sphere2Y;
+			velGeometry2.vertices[0].z = sphere2Z;
+			velGeometry2.vertices[1].x = sphere2X + sphere2VelX * velFactor;
+			velGeometry2.vertices[1].y = sphere2Y + sphere2VelY * velFactor;
+			velGeometry2.vertices[1].z = sphere2Z + sphere2VelZ * velFactor;
+			velGeometry2.verticesNeedUpdate = true;
+		}
+		else {
+			velGeometry.vertices[0].x = 0;
+			velGeometry.vertices[0].y = 0;
+			velGeometry.vertices[0].z = 0;
+			velGeometry.vertices[1].x = 0;
+			velGeometry.vertices[1].y = 0;
+			velGeometry.vertices[1].z = 0;
+			velGeometry.verticesNeedUpdate = true;
+			velGeometry2.vertices[0].x = 0;
+			velGeometry2.vertices[0].y = 0;
+			velGeometry2.vertices[0].z = 0;
+			velGeometry2.vertices[1].x = 0;
+			velGeometry2.vertices[1].y = 0;
+			velGeometry2.vertices[1].z = 0;
+			velGeometry2.verticesNeedUpdate = true;
+		}
 
 				//Particle system
     /*    var verts = particleSystem.geometry.vertices;

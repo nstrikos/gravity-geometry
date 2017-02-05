@@ -54,8 +54,8 @@
 	var particleSystem, particleSystem2, particleCount;
 	var orbitGeometry, lineOrbit, orbitMaterial;
 	var orbitGeometry2, lineOrbit2, orbitMaterial2;
-	var velGeometry, velGeometry2, velLine, velLine2, velMaterial;
 	var velFactor;
+	var velArrow1, velArrow2;
 
     function initVariables() {
 
@@ -78,9 +78,11 @@
 		orbitMaterial = new THREE.LineBasicMaterial({color: 0xff0049, linewidth: 2});
 		orbitMaterial2 = new THREE.LineBasicMaterial({color: 0x4900ff, linewidth: 2});
 		
-		velGeometry = new THREE.Geometry();
-		velGeometry2 = new THREE.Geometry();
-		velMaterial = new THREE.LineBasicMaterial({color: 0x00ffff, linewidth: 2});
+		var sourcePos = new THREE.Vector3(0, 0, 0);
+		var targetPos = new THREE.Vector3(0, 0, 0);
+		var direction = new THREE.Vector3().subVectors(targetPos, sourcePos);
+		velArrow1 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0xf4a442);
+		velArrow2 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0x00ffff);
 
         x = 0;
         xstop = 3000;
@@ -375,17 +377,8 @@
 
 function addVelocities()
 {
-    velGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
-    velGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
-    velLine =  new THREE.Line(velGeometry, velMaterial);
-    scene.add(velLine);
-    velGeometry2.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
-    velGeometry2.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
-    velLine2 =  new THREE.Line(velGeometry2, velMaterial);
-    scene.add(velLine2);
-
-    velLine.frustumCulled = false;
-    velLine2.frustumCulled = false;
+	scene.add(velArrow1);
+	scene.add(velArrow2);
 }
 
     function addLights() {
@@ -627,36 +620,58 @@ function addVelocities()
         orbitGeometry2.verticesNeedUpdate = true;
 		
 		if (velocities) {
-			velGeometry.vertices[0].x = sphere1X;
-			velGeometry.vertices[0].y = sphere1Y;
-			velGeometry.vertices[0].z = sphere1Z;
-			velGeometry.vertices[1].x = sphere1X + sphere1VelX * velFactor;
-			velGeometry.vertices[1].y = sphere1Y + sphere1VelY * velFactor;
-			velGeometry.vertices[1].z = sphere1Z + sphere1VelZ * velFactor;
-			velGeometry.verticesNeedUpdate = true;
-			velGeometry2.vertices[0].x = sphere2X;
-			velGeometry2.vertices[0].y = sphere2Y;
-			velGeometry2.vertices[0].z = sphere2Z;
-			velGeometry2.vertices[1].x = sphere2X + sphere2VelX * velFactor;
-			velGeometry2.vertices[1].y = sphere2Y + sphere2VelY * velFactor;
-			velGeometry2.vertices[1].z = sphere2Z + sphere2VelZ * velFactor;
-			velGeometry2.verticesNeedUpdate = true;
+			var newSourcePos = new THREE.Vector3(sphere1X, sphere1Y, sphere1Z);
+			var newTargetPos = new THREE.Vector3(sphere1X + sphere1VelX * velFactor,
+												 sphere1Y + sphere1VelY * velFactor,
+												 sphere1Z + sphere1VelZ * velFactor);
+												 
+			var direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
+			var length = direction.length();
+			direction.normalize();
+			velArrow1.setDirection(direction);
+			velArrow1.setLength(length);
+			velArrow1.position.x = sphere1X;
+			velArrow1.position.y = sphere1Y;
+			velArrow1.position.z = sphere1Z;
+			
+			newSourcePos = new THREE.Vector3(sphere2X, sphere2Y, sphere2Z);
+			newTargetPos = new THREE.Vector3(sphere2X + sphere2VelX * velFactor,
+											 sphere2Y + sphere2VelY * velFactor,
+											 sphere2Z + sphere2VelZ * velFactor);
+												 
+			direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
+			length = direction.length();
+			direction.normalize();
+			velArrow2.setDirection(direction);
+			velArrow2.setLength(length);
+			velArrow2.position.x = sphere2X;
+			velArrow2.position.y = sphere2Y;
+			velArrow2.position.z = sphere2Z;
 		}
 		else {
-			velGeometry.vertices[0].x = 0;
-			velGeometry.vertices[0].y = 0;
-			velGeometry.vertices[0].z = 0;
-			velGeometry.vertices[1].x = 0;
-			velGeometry.vertices[1].y = 0;
-			velGeometry.vertices[1].z = 0;
-			velGeometry.verticesNeedUpdate = true;
-			velGeometry2.vertices[0].x = 0;
-			velGeometry2.vertices[0].y = 0;
-			velGeometry2.vertices[0].z = 0;
-			velGeometry2.vertices[1].x = 0;
-			velGeometry2.vertices[1].y = 0;
-			velGeometry2.vertices[1].z = 0;
-			velGeometry2.verticesNeedUpdate = true;
+			var newSourcePos = new THREE.Vector3(0, 0, 0);
+			var newTargetPos = new THREE.Vector3(0, 0, 0);
+												 
+			var direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
+			var length = direction.length();
+			direction.normalize();
+			velArrow1.setDirection(direction);
+			velArrow1.setLength(length);
+			velArrow1.position.x = sphere1X;
+			velArrow1.position.y = sphere1Y;
+			velArrow1.position.z = sphere1Z;
+			
+			newSourcePos = new THREE.Vector3(0, 0, 0);
+			newTargetPos = new THREE.Vector3(0, 0, 0);
+												 
+			direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
+			length = direction.length();
+			direction.normalize();
+			velArrow2.setDirection(direction);
+			velArrow2.setLength(length);
+			velArrow2.position.x = sphere2X;
+			velArrow2.position.y = sphere2Y;
+			velArrow2.position.z = sphere2Z;
 		}
 
 				//Particle system

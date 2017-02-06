@@ -1,11 +1,13 @@
 -> check every object for memory leak
--> check what happens on restart button
--> check what happens when positionvelocityarray length changes
--> velocities
+SOS -> check what happens when positionvelocityarray length changes
 -> too small h -> show as an alert
 -> Δες το τετραδιο για σημειώσεις πάνω στο gravity-geometry
 -> check relative mode which sphere is m1 which is m2
 -> swipe area for zooming
+-> three options for orbits(on, off, show entire orbits)
+-> index.html
+-> when parameters change go to frame 0 and show new positions as in qt version
+-> detect collisions
 
 Packages: to do
 -----------------

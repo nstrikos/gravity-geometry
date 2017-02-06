@@ -71,18 +71,18 @@
         CameraFollowsSphere1 = true;
         m1RelativeToM2 = false;
         velocities = false;
-		
-		orbitGeometry = new THREE.Geometry();
-		orbitGeometry2 = new THREE.Geometry();
+        
+        orbitGeometry = new THREE.Geometry();
+        orbitGeometry2 = new THREE.Geometry();
 
-		orbitMaterial = new THREE.LineBasicMaterial({color: 0xff0049, linewidth: 2});
-		orbitMaterial2 = new THREE.LineBasicMaterial({color: 0x4900ff, linewidth: 2});
-		
-		var sourcePos = new THREE.Vector3(0, 0, 0);
-		var targetPos = new THREE.Vector3(0, 0, 0);
-		var direction = new THREE.Vector3().subVectors(targetPos, sourcePos);
-		velArrow1 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0xf4a442);
-		velArrow2 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0x00ffff);
+        orbitMaterial = new THREE.LineBasicMaterial({color: 0xff0049, linewidth: 2});
+        orbitMaterial2 = new THREE.LineBasicMaterial({color: 0x4900ff, linewidth: 2});
+        
+        var sourcePos = new THREE.Vector3(0, 0, 0);
+        var targetPos = new THREE.Vector3(0, 0, 0);
+        var direction = new THREE.Vector3().subVectors(targetPos, sourcePos);
+        velArrow1 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0xf4a442);
+        velArrow2 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0x00ffff);
 
         x = 0;
         xstop = 3000;
@@ -463,6 +463,7 @@ function addVelocities()
 			Restart: function() {
                 evaluate();
                 frame = 0;
+                RunSimulation = true;
             },
 			Screenshot: function() {
 				window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
@@ -473,61 +474,121 @@ function addVelocities()
 		var sphere1Folder = gui.addFolder('Sphere 1 settings');
 		sphere1Folder.add( parameters, 'm1' ).name('mass').onFinishChange(function(){
             m1 = parameters.m1;
+            frame = 0;
+            RunSimulation = false;
+            clearOrbits();
 		});
 		var sphere1PositionFolder = sphere1Folder.addFolder('Position');
 		sphere1PositionFolder.add( parameters, 'Mass1PositionX' ).name('X').onFinishChange(function(){
             Mass1PositionX = parameters.Mass1PositionX;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][0] = Mass1PositionX;
+            clearOrbits();
 		});
 		sphere1PositionFolder.add( parameters, 'Mass1PositionY' ).name('Y').onFinishChange(function(){
             Mass1PositionY = parameters.Mass1PositionY;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][1] = Mass1PositionY;
+            clearOrbits();
 		});
 		sphere1PositionFolder.add( parameters, 'Mass1PositionZ' ).name('Z').onFinishChange(function(){
             Mass1PositionZ = parameters.Mass1PositionZ;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][2] = Mass1PositionZ;
+            clearOrbits();
 		});
 		
 		var sphere1VelocityFolder = sphere1Folder.addFolder('Velocity');
 		sphere1VelocityFolder.add( parameters, 'Mass1VelocityX' ).name('Vx').onFinishChange(function(){
             Mass1VelocityX = parameters.Mass1VelocityX;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][3] = Mass1VelocityX;
+            clearOrbits();
 		});
 		sphere1VelocityFolder.add( parameters, 'Mass1VelocityY' ).name('Vy').onFinishChange(function(){
             Mass1VelocityY = parameters.Mass1VelocityY;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][4] = Mass1VelocityY;
+            clearOrbits();
 		});
 		sphere1VelocityFolder.add( parameters, 'Mass1VelocityZ' ).name('Vz').onFinishChange(function(){
             Mass1VelocityZ = parameters.Mass1VelocityZ;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][5] = Mass1VelocityZ;
+            clearOrbits();
 		});
 		
 		var sphere2Folder = gui.addFolder('Sphere 2 settings');
 		sphere2Folder.add( parameters, 'm2' ).name('mass').onFinishChange(function(){
             m2 = parameters.m2;
+            frame = 0;
+            RunSimulation = false;
+            clearOrbits();
 		});
 		var sphere2PositionFolder = sphere2Folder.addFolder('Position');
 		sphere2PositionFolder.add( parameters, 'Mass2PositionX' ).name('X').onFinishChange(function(){
             Mass2PositionX = parameters.Mass2PositionX;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][6] = Mass2PositionX;
+            clearOrbits();
 		});
 		sphere2PositionFolder.add( parameters, 'Mass2PositionY' ).name('Y').onFinishChange(function(){
             Mass2PositionY = parameters.Mass2PositionY;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][7] = Mass2PositionY;
+            clearOrbits();
 		});
 		sphere2PositionFolder.add( parameters, 'Mass2PositionZ' ).name('Z').onFinishChange(function(){
             Mass2PositionZ = parameters.Mass2PositionZ;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][8] = Mass2PositionZ;
+            clearOrbits();
 		});
 		
 		var sphere2VelocityFolder = sphere2Folder.addFolder('Velocity');
 		sphere2VelocityFolder.add( parameters, 'Mass2VelocityX' ).name('Vx').onFinishChange(function(){
             Mass2VelocityX = parameters.Mass2VelocityX;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][9] = Mass2VelocityX;
+            clearOrbits();
 		});
 		sphere2VelocityFolder.add( parameters, 'Mass2VelocityY' ).name('Vy').onFinishChange(function(){
             Mass2VelocityY = parameters.Mass2VelocityY;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][10] = Mass2VelocityY;
+            clearOrbits();
 		});
 		sphere2VelocityFolder.add( parameters, 'Mass2VelocityZ' ).name('Vz').onFinishChange(function(){
             Mass2VelocityZ = parameters.Mass2VelocityZ;
+            frame = 0;
+            RunSimulation = false;
+            positionVelocityArray[frame][11] = Mass2VelocityZ;
+            clearOrbits();
 		});
 		
 		var otherFolder = gui.addFolder('Other settings');
 		otherFolder.add( parameters, 'FinalTime' ).name('Final time').onFinishChange(function(){
             xstop = parameters.FinalTime;
+            frame = 0;
+            RunSimulation = false;
+            clearOrbits();
 		});
 		otherFolder.add( parameters, 'TimeStep' ).name('Time step').onFinishChange(function(){
             h = parameters.TimeStep;
+            frame = 0;
+            RunSimulation = false;
+            clearOrbits();
 		});
 		otherFolder.add( parameters, 'velocities' ).name('Show velocities').onFinishChange(function(){
             velocities = parameters.velocities;

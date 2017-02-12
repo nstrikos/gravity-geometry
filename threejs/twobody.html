@@ -15,7 +15,7 @@
             margin: 0;
             overflow: hidden;
         }
-    </style>
+    </style> 
 </head>
 <body>
 
@@ -70,7 +70,7 @@
         AutoRotate = true;
         CameraFollowsSphere1 = true;
         m1RelativeToM2 = false;
-        velocities = false;
+        velocities = true;
         
         orbitGeometry = new THREE.Geometry();
         orbitGeometry2 = new THREE.Geometry();
@@ -79,7 +79,7 @@
         orbitMaterial2 = new THREE.LineBasicMaterial({color: 0x4900ff, linewidth: 2});
         
         var sourcePos = new THREE.Vector3(0, 0, 0);
-        var targetPos = new THREE.Vector3(0, 0, 0);
+        var targetPos = new THREE.Vector3(0.01, 0.01, 0.01);
         var direction = new THREE.Vector3().subVectors(targetPos, sourcePos);
         velArrow1 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0xf4a442);
         velArrow2 = new THREE.ArrowHelper(direction.clone().normalize(), sourcePos, direction.length(), 0x00ffff);
@@ -172,6 +172,7 @@
         ncolumns = 12;
         nrows = Math.ceil ((xstop-x)/h);
 
+        positionVelocityArray.length = 0;
         positionVelocityArray = [];
         delete positionVelocityArray;
         positionVelocityArray = null;
@@ -285,7 +286,7 @@
     }
 	
 	function addOrbits() {
-		for (var i = 0; i < positionVelocityArray.length - 1; i++)
+    for (var i = 0; i < positionVelocityArray.length - 1; i++)
     {
         orbitGeometry.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
         orbitGeometry2.vertices.push(new THREE.Vector3(undefined, undefined, undefined));
@@ -339,7 +340,7 @@
 	
 	function clearOrbits()
 {
-       for (var i = 0; i < positionVelocityArray.length - 1; i++)
+        for (var i = 0; i < orbitGeometry.vertices.length; i++)
         {
             orbitGeometry.dynamic = true;
             orbitGeometry2.dynamic = true;
@@ -409,7 +410,7 @@ function addVelocities()
 
         initVariables();
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 50000 );
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 500000 );
     	camera.target = new THREE.Vector3(0, 0, 0);
 
         renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
@@ -424,8 +425,7 @@ function addVelocities()
 		addOrbits();
 		addVelocities();
         addLights();
-		
-	
+        
         //This is duplicate code
         camera.position.x = maxDistance ;
         camera.position.y = maxDistance ;
@@ -460,11 +460,14 @@ function addVelocities()
             AutoRotate: this.AutoRotate,
             m1RelativeToM2: this.m1RelativeToM2,
 			RunSimulation: this.RunSimulation,
+			showInfo: function() {
+                    window.open('./docs/twobody-doc.html','mywindow','width=400, height=400, left=0, top=0, screenX=0, screenY=0');
+			},
 			Restart: function() {
                 evaluate();
                 frame = 0;
                 RunSimulation = true;
-            },
+            },            
 			Screenshot: function() {
 				window.open( renderer.domElement.toDataURL( 'image/png' ), 'screenshot' );
 			}
@@ -506,21 +509,21 @@ function addVelocities()
             Mass1VelocityX = parameters.Mass1VelocityX;
             frame = 0;
             RunSimulation = false;
-            positionVelocityArray[frame][3] = Mass1VelocityX;
+            positionVelocityArray[frame][6] = Mass1VelocityX;
             clearOrbits();
 		});
 		sphere1VelocityFolder.add( parameters, 'Mass1VelocityY' ).name('Vy').onFinishChange(function(){
             Mass1VelocityY = parameters.Mass1VelocityY;
             frame = 0;
             RunSimulation = false;
-            positionVelocityArray[frame][4] = Mass1VelocityY;
+            positionVelocityArray[frame][7] = Mass1VelocityY;
             clearOrbits();
 		});
 		sphere1VelocityFolder.add( parameters, 'Mass1VelocityZ' ).name('Vz').onFinishChange(function(){
             Mass1VelocityZ = parameters.Mass1VelocityZ;
             frame = 0;
             RunSimulation = false;
-            positionVelocityArray[frame][5] = Mass1VelocityZ;
+            positionVelocityArray[frame][8] = Mass1VelocityZ;
             clearOrbits();
 		});
 		
@@ -536,21 +539,21 @@ function addVelocities()
             Mass2PositionX = parameters.Mass2PositionX;
             frame = 0;
             RunSimulation = false;
-            positionVelocityArray[frame][6] = Mass2PositionX;
+            positionVelocityArray[frame][3] = Mass2PositionX;
             clearOrbits();
 		});
 		sphere2PositionFolder.add( parameters, 'Mass2PositionY' ).name('Y').onFinishChange(function(){
             Mass2PositionY = parameters.Mass2PositionY;
             frame = 0;
             RunSimulation = false;
-            positionVelocityArray[frame][7] = Mass2PositionY;
+            positionVelocityArray[frame][4] = Mass2PositionY;
             clearOrbits();
 		});
 		sphere2PositionFolder.add( parameters, 'Mass2PositionZ' ).name('Z').onFinishChange(function(){
             Mass2PositionZ = parameters.Mass2PositionZ;
             frame = 0;
             RunSimulation = false;
-            positionVelocityArray[frame][8] = Mass2PositionZ;
+            positionVelocityArray[frame][5] = Mass2PositionZ;
             clearOrbits();
 		});
 		
@@ -580,12 +583,16 @@ function addVelocities()
 		var otherFolder = gui.addFolder('Other settings');
 		otherFolder.add( parameters, 'FinalTime' ).name('Final time').onFinishChange(function(){
             xstop = parameters.FinalTime;
+            clearOrbits();
+            initializeArray();
             frame = 0;
             RunSimulation = false;
-            clearOrbits();
 		});
 		otherFolder.add( parameters, 'TimeStep' ).name('Time step').onFinishChange(function(){
             h = parameters.TimeStep;
+            clearOrbits();
+            initializeArray();
+            frame = 0;
             frame = 0;
             RunSimulation = false;
             clearOrbits();
@@ -596,7 +603,7 @@ function addVelocities()
 		otherFolder.add( parameters, 'ReferencePlane' ).name('Show axes').onFinishChange(function(){
             ReferencePlane = parameters.ReferencePlane;
 		});
-		otherFolder.add( parameters, 'CameraFollowsSphere1' ).name('Camera follows sphere1').onFinishChange(function(){
+otherFolder.add( parameters, 'CameraFollowsSphere1' ).name('Follow sphere 1').onFinishChange(function(){
             CameraFollowsSphere1 = parameters.CameraFollowsSphere1;
 		});
 		otherFolder.add( parameters, 'AutoRotate' ).name('Auto rotate').onFinishChange(function(){
@@ -611,6 +618,7 @@ function addVelocities()
 		otherFolder.add( parameters, 'RunSimulation' ).name('Run simulation').onFinishChange(function(){
             RunSimulation = parameters.RunSimulation;
 		});
+		otherFolder.add( parameters, 'showInfo' ).name('Info');		
 		gui.add( parameters, 'Restart' ).name('Restart');
 		
         render();
@@ -663,22 +671,22 @@ function addVelocities()
                     var sphere2VelZ = positionVelocityArray[frame][11];
                 }   
 				
-				if (frame > 0)
-        {
-            for (var i = frame - 1; i < positionVelocityArray.length - 1; i++)
-            {
-                orbitGeometry.dynamic = true;
-                orbitGeometry2.dynamic = true;
-                orbitGeometry.vertices[i].x = sphere1X;
-                orbitGeometry.vertices[i].y = sphere1Y;
-                orbitGeometry.vertices[i].z = sphere1Z;
-                orbitGeometry2.vertices[i].x = sphere2X;
-                orbitGeometry2.vertices[i].y = sphere2Y;
-                orbitGeometry2.vertices[i].z = sphere2Z;
-            }
-        }
-        orbitGeometry.verticesNeedUpdate = true;
-        orbitGeometry2.verticesNeedUpdate = true;
+                if (frame > 0)
+                {
+                    for (var i = frame - 1; i < orbitGeometry.vertices.length; i++)
+                    {
+                        orbitGeometry.dynamic = true;
+                        orbitGeometry2.dynamic = true;
+                        orbitGeometry.vertices[i].x = sphere1X;
+                        orbitGeometry.vertices[i].y = sphere1Y;
+                        orbitGeometry.vertices[i].z = sphere1Z;
+                        orbitGeometry2.vertices[i].x = sphere2X;
+                        orbitGeometry2.vertices[i].y = sphere2Y;
+                        orbitGeometry2.vertices[i].z = sphere2Z;
+                    }
+                }
+                orbitGeometry.verticesNeedUpdate = true;
+                orbitGeometry2.verticesNeedUpdate = true;
 		
 		if (velocities) {
 			var newSourcePos = new THREE.Vector3(sphere1X, sphere1Y, sphere1Z);
@@ -688,6 +696,8 @@ function addVelocities()
 												 
 			var direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
 			var length = direction.length();
+			if (length == 0 ) 
+                length = 0.01;
 			direction.normalize();
 			velArrow1.setDirection(direction);
 			velArrow1.setLength(length);
@@ -702,6 +712,8 @@ function addVelocities()
 												 
 			direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
 			length = direction.length();
+			if (length == 0 ) 
+                length = 0.01;
 			direction.normalize();
 			velArrow2.setDirection(direction);
 			velArrow2.setLength(length);
@@ -711,7 +723,7 @@ function addVelocities()
 		}
 		else {
 			var newSourcePos = new THREE.Vector3(0, 0, 0);
-			var newTargetPos = new THREE.Vector3(0, 0, 0);
+			var newTargetPos = new THREE.Vector3(0.01, 0.01, 0.01);
 												 
 			var direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
 			var length = direction.length();
@@ -723,7 +735,7 @@ function addVelocities()
 			velArrow1.position.z = sphere1Z;
 			
 			newSourcePos = new THREE.Vector3(0, 0, 0);
-			newTargetPos = new THREE.Vector3(0, 0, 0);
+			newTargetPos = new THREE.Vector3(0.01, 0.01, 0.01);
 												 
 			direction = new THREE.Vector3().subVectors(newTargetPos, newSourcePos);
 			length = direction.length();
@@ -733,7 +745,7 @@ function addVelocities()
 			velArrow2.position.x = sphere2X;
 			velArrow2.position.y = sphere2Y;
 			velArrow2.position.z = sphere2Z;
-		}
+		} 
 
 				//Particle system
     /*    var verts = particleSystem.geometry.vertices;
@@ -782,16 +794,16 @@ function addVelocities()
                 spotLight2.position.set(camera.position.x, camera.position.y, camera.position.z);
 
                 scene.traverse(function(e) {
-                    if (e.name == "sphere1" ) {
+                   if (e.name == "sphere1" ) {
                         e.position.x = sphere1X;
                         e.position.y = sphere1Y;
                         e.position.z = sphere1Z;
-                    }
-                    if (e.name == "sphere2" ) {
+                   }
+                   if (e.name == "sphere2" ) {
                         e.position.x = sphere2X;
                         e.position.y = sphere2Y;
                         e.position.z = sphere2Z;
-                    }
+                   }
                 }); 
 
             var delta = clock.getDelta();

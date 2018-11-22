@@ -272,7 +272,9 @@
     function addSpheres() {
         var sphereGeometry = new THREE.SphereGeometry(maxDistance / 30, 20, 20);
         var material = new THREE.MeshPhongMaterial({color: 0xff7777});
+        material.precision = "mediump"
         var material2 = new THREE.MeshPhongMaterial({color: 0x7777ff});
+        material2.precision = "mediump"
         sphere1 = new THREE.Mesh(sphereGeometry, material);
         sphere1.name = "sphere1";
         scene.add(sphere1);
@@ -414,7 +416,6 @@ function addVelocities()
     	camera.target = new THREE.Vector3(0, 0, 0);
 
         renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
-        renderer.precision = "mediump";
         renderer.setClearColor(new THREE.Color(0x000000, 1.0));
         renderer.setClearColor(new THREE.Color(0x000000, 0.0));
         renderer.shadowMap.Enabled = true;

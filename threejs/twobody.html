@@ -414,6 +414,7 @@ function addVelocities()
     	camera.target = new THREE.Vector3(0, 0, 0);
 
         renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+        renderer.precision = "mediump";
         renderer.setClearColor(new THREE.Color(0x000000, 1.0));
         renderer.setClearColor(new THREE.Color(0x000000, 0.0));
         renderer.shadowMap.Enabled = true;
